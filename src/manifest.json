@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "minimum_chrome_version": "49",
+  "permissions": [
+    "contextMenus",
+    "https://*.youtube.com/*"
+  ],
+  "browser_action": {},
+  "background": {
+    "persistent": false,
+    "scripts": [
+      "./background.bundle.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.youtube.com/*"
+      ],
+      "js": [
+        "./youtube.bundle.js"
+      ],
+      "css": [],
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": []
+}
