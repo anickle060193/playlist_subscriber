@@ -37,8 +37,7 @@
       "es2017"
     ],
     "types": [
-      "chrome",
-      "gapi"
+      "chrome"
     ],
   },
   "compileOnSave": false

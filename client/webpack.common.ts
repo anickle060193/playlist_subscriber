@@ -2,12 +2,14 @@ import path = require( 'path' );
 import webpack = require( 'webpack' );
 import CleanWebpackPlugin = require( 'clean-webpack-plugin' );
 import CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+import HtmlWebpackPlugin = require( 'html-webpack-plugin' );
 
 const build = path.resolve( __dirname, './build' );
 
 const config: webpack.Configuration = {
   entry: {
     background: path.resolve( __dirname, 'src', 'background', 'index.ts' ),
+    popup: path.resolve( __dirname, 'src', 'popup', 'index.tsx' ),
     youtube: path.resolve( __dirname, 'src', 'inject', 'youtube', 'index.ts' )
   },
   output: {
@@ -21,16 +23,32 @@ const config: webpack.Configuration = {
         use: [ 'style-loader', 'css-loader' ]
       },
       {
+        test: /\.scss$/,
+        use: [ 'style-loader', 'css-loader', 'sass-loader' ]
+      },
+      {
         test: /\.(ts|tsx)$/,
         use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        test: /\.(woff|woff2)$/,
+        use: {
+          loader: 'url-loader',
+          options: {
+            limit: 1024,
+            fallback: 'file-loader'
+          }
+        }
       }
     ]
   },
   resolve: {
-    extensions: [ '.js', '.jsx', '.ts', '.tsx', '.json', '.css' ],
+    extensions: [ '.js', '.jsx', '.ts', '.tsx', '.json', '.css', '.scss', '.woff', '.woff2' ],
     alias: {
       background: path.resolve( __dirname, 'src', 'background' ),
+      common: path.resolve( __dirname, 'src', 'common' ),
+      popup: path.resolve( __dirname, 'src', 'popup' ),
       inject: path.resolve( __dirname, 'src', 'inject' )
     }
   },
@@ -48,7 +66,12 @@ const config: webpack.Configuration = {
           ...JSON.parse( content )
         }, null, 2 ) )
       }
-    ] )
+    ] ),
+    new HtmlWebpackPlugin( {
+      filename: 'popup.html',
+      template: path.resolve( __dirname, 'src', 'popup', 'index.html' ),
+      chunks: [ 'popup' ]
+    } )
   ]
 };
 
