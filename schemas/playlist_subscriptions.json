@@ -1,0 +1,7 @@
+{
+  "$id": "playlist_subscriptions",
+  "type": "array",
+  "items": {
+    "type": "string"
+  }
+}

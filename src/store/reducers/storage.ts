@@ -2,6 +2,7 @@ import actionCreatorFactory from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { asyncFactory } from 'typescript-fsa-redux-thunk';
 import { getSyncItem, setSyncItem } from 'utils/storage';
+import { validatePlaylistSubscriptions } from 'utils/validation';
 
 const STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY = 'storage::playlistSubscriptions';
 
@@ -19,21 +20,16 @@ const createAsyncAction = asyncFactory<RootState>( createAction );
 
 export const loadPlaylistSubscriptions = createAsyncAction( 'LOAD_PLAYLIST_SUBSCRIPTIONS', async ( params, dispatch, getState ) =>
 {
-  let playlists = await getSyncItem<string[]>( STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY );
-  if( typeof playlists === 'undefined' )
+  let data = await getSyncItem<string[]>( STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY );
+  if( typeof data === 'undefined' )
   {
     let { storage: { playlistSubscriptions } } = getState();
     return playlistSubscriptions;
   }
-  else if( Array.isArray( playlists )
-    && playlists.every( ( playlist ) => typeof playlist === 'string' ) )
-  {
-    return new Set( playlists );
-  }
-  else
-  {
-    throw new Error( 'Unexpected playlist subscriptions format: \n' + JSON.stringify( playlists, null, 2 ) );
-  }
+
+  let playlists = validatePlaylistSubscriptions( data );
+
+  return new Set( playlists );
 } );
 
 export const setPlaylistSubscriptions = createAsyncAction( 'SET_PLAYLIST_SUBSCRIPTIONS', ( playlistSubscriptions: Set<string> ) =>
