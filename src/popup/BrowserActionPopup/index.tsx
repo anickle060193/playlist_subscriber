@@ -19,7 +19,8 @@ import
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 
-import { setPlaylistSubscriptions } from 'store/reducers/storage';
+import { setPlaylistSubscriptions, loadPlaylistSubscriptions } from 'store/reducers/storage';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -49,6 +50,7 @@ interface PropsFromState
 
 interface PropsFromDispatch
 {
+  loadPlaylistSubscriptions: () => Promise<Set<string>>;
   setPlaylistSubscriptions: ( subscriptions: Set<string> ) => void;
 }
 
@@ -68,6 +70,8 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
   public componentDidMount()
   {
     chrome.tabs.query( { active: true }, this.onTabsQuery );
+
+    this.props.loadPlaylistSubscriptions();
   }
 
   public render()
@@ -208,6 +212,7 @@ export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
     playlistSubscriptions: state.storage.playlistSubscriptions
   } ),
   {
-    setPlaylistSubscriptions
+    loadPlaylistSubscriptions: thunkToAction( loadPlaylistSubscriptions.action ),
+    setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action )
   }
 )( withStyles( styles )( BrowserActionPopup ) );

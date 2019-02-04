@@ -11,7 +11,7 @@ const middleWares: Middleware[] = [
 if( process.env.NODE_ENV === 'development' )
 {
   const { createLogger } = require( 'redux-logger' ) as typeof ReduxLogger; // tslint:disable-line:no-var-requires
-  middleWares.unshift( createLogger( {
+  middleWares.push( createLogger( {
     collapsed: true,
     diff: false,
     duration: true
