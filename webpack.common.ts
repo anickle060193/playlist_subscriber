@@ -10,7 +10,6 @@ const config: webpack.Configuration = {
   entry: {
     background: path.resolve( __dirname, 'src', 'background', 'index.ts' ),
     popup: path.resolve( __dirname, 'src', 'popup', 'index.tsx' ),
-    youtube: path.resolve( __dirname, 'src', 'inject', 'youtube', 'index.ts' )
   },
   output: {
     filename: '[name].bundle.js',
@@ -49,7 +48,6 @@ const config: webpack.Configuration = {
       background: path.resolve( __dirname, 'src', 'background' ),
       common: path.resolve( __dirname, 'src', 'common' ),
       popup: path.resolve( __dirname, 'src', 'popup' ),
-      inject: path.resolve( __dirname, 'src', 'inject' )
     }
   },
   plugins: [
