@@ -2,7 +2,12 @@ const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
 const KEY = atob( 'QUl6YVN5RDFJb2ZoN1JXVThPTTRDUzVQVHdkakJFczA0am9oQzZV' );
 
-export async function fetchYoutubePlaylists( playlistIds: string[] )
+export interface YoutubePlaylist
+{
+  id: string;
+}
+
+export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<YoutubePlaylist[]>
 {
   const params = new URLSearchParams( {
     key: KEY,
@@ -21,7 +26,12 @@ export async function fetchYoutubePlaylists( playlistIds: string[] )
   return data;
 }
 
-export async function fetchYoutubePlaylistVideos( playlistId: string )
+export interface YoutubePlaylistItem
+{
+  id: string;
+}
+
+export async function fetchYoutubePlaylistVideos( playlistId: string ): Promise<YoutubePlaylistItem[]>
 {
   const params = new URLSearchParams();
   params.set( 'key', KEY );

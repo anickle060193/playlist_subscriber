@@ -48,6 +48,8 @@ const config: webpack.Configuration = {
       background: path.resolve( __dirname, 'src', 'background' ),
       common: path.resolve( __dirname, 'src', 'common' ),
       popup: path.resolve( __dirname, 'src', 'popup' ),
+      store: path.resolve( __dirname, 'src', 'store' ),
+      utils: path.resolve( __dirname, 'src', 'utils' ),
     }
   },
   plugins: [

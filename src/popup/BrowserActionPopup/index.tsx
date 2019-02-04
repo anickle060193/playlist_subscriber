@@ -1,7 +1,25 @@
 import React = require( 'react' );
-import { List, ListItem, ListItemText, ListItemSecondaryAction, IconButton, TextField, createStyles, Theme, withStyles, WithStyles, Paper, InputAdornment, Typography } from '@material-ui/core';
+import { connect } from 'react-redux';
+import
+{
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  TextField,
+  createStyles,
+  Theme,
+  withStyles,
+  WithStyles,
+  Paper,
+  InputAdornment,
+  Typography
+} from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
+
+import { setPlaylistSubscriptions } from 'store/reducers/storage';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -24,53 +42,52 @@ function isTextEmpty( text: string | null | undefined )
   return !text || /^\s*$/.test( text );
 }
 
-type Props = WithStyles<typeof styles>;
+interface PropsFromState
+{
+  playlistSubscriptions: Set<string>;
+}
+
+interface PropsFromDispatch
+{
+  setPlaylistSubscriptions: ( subscriptions: Set<string> ) => void;
+}
+
+type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles>;
 
 interface State
 {
-  playlists: Set<string>;
   playlistId: string;
 }
 
 class BrowserActionPopup extends React.PureComponent<Props, State>
 {
   public readonly state: State = {
-    playlists: new Set(),
     playlistId: ''
   };
 
   public componentDidMount()
   {
     chrome.tabs.query( { active: true }, this.onTabsQuery );
-
-    chrome.storage.sync.get( 'playlists', this.onStorage );
-
-    chrome.storage.onChanged.addListener( this.onStorageChange );
-  }
-
-  public componentWillUnmount()
-  {
-    chrome.storage.onChanged.removeListener( this.onStorageChange );
   }
 
   public render()
   {
-    const { classes } = this.props;
-    const { playlists, playlistId } = this.state;
+    const { classes, playlistSubscriptions } = this.props;
+    const { playlistId } = this.state;
 
     return (
       <div className={classes.root}>
-        <Typography variant="h6">Playlists</Typography>
+        <Typography variant="h6">Playlist Subscriptions</Typography>
         <Paper>
           <List className={classes.list}>
-            {( playlists.size === 0 ) ?
+            {( playlistSubscriptions.size === 0 ) ?
               (
                 <ListItem>
                   <ListItemText primary="No playlist subscriptions" />
                 </ListItem>
               ) :
               (
-                Array.from( playlists.values() ).map( ( playlist ) => (
+                Array.from( playlistSubscriptions.values() ).map( ( playlist ) => (
                   <ListItem
                     key={playlist}
                     button={true}
@@ -115,30 +132,6 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     );
   }
 
-  private onStorage = ( data: { [ key: string ]: any } ) => // tslint:disable-line:no-any
-  {
-    if( chrome.runtime.lastError )
-    {
-      console.error( 'Failed to retrieve stored playlists:', chrome.runtime.lastError );
-      return;
-    }
-
-    const playlists = data && data.playlists;
-
-    if( !Array.isArray( playlists ) )
-    {
-      console.log( 'No stored playlists:', playlists );
-      return;
-    }
-
-    this.setState( { playlists: new Set( playlists ) } );
-  }
-
-  private onStorageChange = () =>
-  {
-    chrome.storage.sync.get( 'playlists', this.onStorage );
-  }
-
   private onTabsQuery = ( tabs: chrome.tabs.Tab[] ) =>
   {
     if( chrome.runtime.lastError )
@@ -163,6 +156,12 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     }
 
     const url = new URL( tabUrl );
+
+    if( !url.hostname.endsWith( 'youtube.com' ) )
+    {
+      return;
+    }
+
     const playlistId = url.searchParams.get( 'list' );
     if( playlistId )
     {
@@ -185,32 +184,30 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
       return;
     }
 
-    let playlists = new Set( this.state.playlists );
-    playlists.add( this.state.playlistId );
+    console.log( 'Add playlist subscription:', this.state.playlistId );
+    let playlistSubscriptions = new Set( this.props.playlistSubscriptions );
+    playlistSubscriptions.add( this.state.playlistId );
 
-    this.savePlaylists( playlists );
-
+    this.props.setPlaylistSubscriptions( playlistSubscriptions );
     this.setState( { playlistId: '' } );
   }
 
   private onRemovePlaylist = ( playlistId: string ) =>
   {
-    console.log( 'Remove Playlist:', playlistId );
-    let playlists = new Set( this.state.playlists );
-    playlists.delete( playlistId );
-    this.savePlaylists( playlists );
-  }
+    console.log( 'Remove playlist subscription:', playlistId );
 
-  private savePlaylists( playlists: Set<string> )
-  {
-    chrome.storage.sync.set( { playlists: Array.from( playlists ) }, () =>
-    {
-      if( chrome.runtime.lastError )
-      {
-        console.error( 'Failed to save playlists:', chrome.runtime.lastError );
-      }
-    } );
+    let playlistSubscriptions = new Set( this.props.playlistSubscriptions );
+    playlistSubscriptions.delete( playlistId );
+
+    this.props.setPlaylistSubscriptions( playlistSubscriptions );
   }
 }
 
-export default withStyles( styles )( BrowserActionPopup );
+export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
+  ( state ) => ( {
+    playlistSubscriptions: state.storage.playlistSubscriptions
+  } ),
+  {
+    setPlaylistSubscriptions
+  }
+)( withStyles( styles )( BrowserActionPopup ) );
