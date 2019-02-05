@@ -1,20 +1,27 @@
+import { YoutubePlaylist, YoutubePlaylistItem } from './youtube_api_types';
+import { validateYoutubePlaylistsResponse, validateYoutubePlaylistItemsResponse } from './validation';
+
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
 const KEY = atob( 'QUl6YVN5RDFJb2ZoN1JXVThPTTRDUzVQVHdkakJFczA0am9oQzZV' );
 
-export interface YoutubePlaylist
+function formatUrl( baseUrl: string, params: { [ key: string ]: string } )
 {
-  id: string;
+  let url = new URL( baseUrl );
+  for( let [ key, value ] of Object.entries( params ) )
+  {
+    url.searchParams.set( key, value );
+  }
+  return url.href;
 }
 
 export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<YoutubePlaylist[]>
 {
-  const params = new URLSearchParams( {
+  let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlists`, {
     key: KEY,
     part: 'snippet',
     id: playlistIds.join( ',' )
-  } );
-  let response = await fetch( `${YOUTUBE_API_URL}/playlists`, { body: params } );
+  } ) );
 
   let data = await response.json();
 
@@ -23,21 +30,18 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
     throw data;
   }
 
-  return data;
-}
+  let playlistsResponse = validateYoutubePlaylistsResponse( data );
 
-export interface YoutubePlaylistItem
-{
-  id: string;
+  return playlistsResponse.items;
 }
 
 export async function fetchYoutubePlaylistVideos( playlistId: string ): Promise<YoutubePlaylistItem[]>
 {
-  const params = new URLSearchParams();
-  params.set( 'key', KEY );
-  params.set( 'part', 'snippet' );
-  params.set( 'playlistId', playlistId );
-  let response = await fetch( `${YOUTUBE_API_URL}/playlistItems`, { body: params } );
+  let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlistItems`, {
+    key: KEY,
+    part: 'snippet',
+    playlistId: playlistId
+  } ) );
 
   let data = await response.json();
 
@@ -46,5 +50,7 @@ export async function fetchYoutubePlaylistVideos( playlistId: string ): Promise<
     throw data;
   }
 
-  return data;
+  let playlistItemsResponse = validateYoutubePlaylistItemsResponse( data );
+
+  return playlistItemsResponse.items;
 }

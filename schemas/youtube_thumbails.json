@@ -1,0 +1,22 @@
+{
+  "$id": "youtube_thumbnails",
+  "type": "object",
+  "properties": {
+    "default": {
+      "$ref": "youtube_thumbnail"
+    },
+    "medium": {
+      "$ref": "youtube_thumbnail"
+    },
+    "high": {
+      "$ref": "youtube_thumbnail"
+    },
+    "standard": {
+      "$ref": "youtube_thumbnail"
+    },
+    "maxres": {
+      "$ref": "youtube_thumbnail"
+    }
+  },
+  "additionalProperties": false
+}

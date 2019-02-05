@@ -9,8 +9,9 @@ var validate = (function() {
       var errs__0 = errors;
       var valid0;
       for (var i0 = 0; i0 < data.length; i0++) {
+        var data1 = data[i0];
         var errs_1 = errors;
-        if (typeof data[i0] !== "string") {
+        if (typeof data1 !== "string") {
           var err = {
             keyword: 'type',
             dataPath: (dataPath || '') + '[' + i0 + ']',
@@ -18,7 +19,10 @@ var validate = (function() {
             params: {
               type: 'string'
             },
-            message: 'should be string'
+            message: 'should be string',
+            schema: validate.schema.items.type,
+            parentSchema: validate.schema.items,
+            data: data1
           };
           if (vErrors === null) vErrors = [err];
           else vErrors.push(err);
@@ -34,7 +38,10 @@ var validate = (function() {
         params: {
           type: 'array'
         },
-        message: 'should be array'
+        message: 'should be array',
+        schema: validate.schema.type,
+        parentSchema: validate.schema,
+        data: data
       };
       if (vErrors === null) vErrors = [err];
       else vErrors.push(err);

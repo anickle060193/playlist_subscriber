@@ -11,3 +11,12 @@ export interface MappedResource<T>
   loading: { [ key: string ]: boolean | undefined };
   error: { [ key: string ]: Error | null | undefined };
 }
+
+export function mappedResourceNeedsLoad<T>( key: string, mappedResource: MappedResource<T> )
+{
+  return (
+    !mappedResource.loading[ key ]
+    && typeof mappedResource.items[ key ] === 'undefined'
+    && typeof mappedResource.error[ key ] === 'undefined'
+  );
+}

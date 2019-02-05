@@ -1,0 +1,20 @@
+{
+  "$id": "youtube_thumbnail",
+  "type": "object",
+  "required": [
+    "url",
+    "width",
+    "height"
+  ],
+  "properties": {
+    "url": {
+      "type": "string"
+    },
+    "width": {
+      "type": "number"
+    },
+    "height": {
+      "type": "number"
+    }
+  }
+}

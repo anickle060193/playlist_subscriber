@@ -1,5 +1,6 @@
 import React = require( 'react' );
 import { connect } from 'react-redux';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import
 {
   List,
@@ -14,13 +15,19 @@ import
   WithStyles,
   Paper,
   InputAdornment,
-  Typography
+  Typography,
+  Avatar,
+  ListItemAvatar
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
+import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 
 import { setPlaylistSubscriptions, loadPlaylistSubscriptions } from 'store/reducers/storage';
-import { thunkToAction } from 'typescript-fsa-redux-thunk';
+import { retrieveYoutubePlaylists } from 'store/reducers/youtubeApi';
+
+import { YoutubePlaylist, getYoutubeAvatarThumbnail } from 'utils/youtube_api_types';
+import { MappedResource, mappedResourceNeedsLoad } from 'utils/resource';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -32,6 +39,12 @@ const styles = ( theme: Theme ) => createStyles( {
   list: {
     maxHeight: 500,
     overflow: 'auto'
+  },
+  listItemText: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    whiteSpace: 'normal',
+    lineClamp: 2
   },
   form: {
     marginTop: theme.spacing.unit * 2
@@ -46,25 +59,27 @@ function isTextEmpty( text: string | null | undefined )
 interface PropsFromState
 {
   playlistSubscriptions: Set<string>;
+  youtubePlaylists: MappedResource<YoutubePlaylist>;
 }
 
 interface PropsFromDispatch
 {
   loadPlaylistSubscriptions: () => Promise<Set<string>>;
   setPlaylistSubscriptions: ( subscriptions: Set<string> ) => void;
+  retrieveYoutubePlaylists: ( playlistIds: string[] ) => Promise<void>;
 }
 
 type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles>;
 
 interface State
 {
-  playlistId: string;
+  playlistIdValue: string;
 }
 
 class BrowserActionPopup extends React.PureComponent<Props, State>
 {
   public readonly state: State = {
-    playlistId: ''
+    playlistIdValue: ''
   };
 
   public componentDidMount()
@@ -72,12 +87,19 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     chrome.tabs.query( { active: true }, this.onTabsQuery );
 
     this.props.loadPlaylistSubscriptions();
+
+    this.onUpdate();
+  }
+
+  public componentDidUpdate()
+  {
+    this.onUpdate();
   }
 
   public render()
   {
     const { classes, playlistSubscriptions } = this.props;
-    const { playlistId } = this.state;
+    const { playlistIdValue } = this.state;
 
     return (
       <div className={classes.root}>
@@ -91,23 +113,59 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
                 </ListItem>
               ) :
               (
-                Array.from( playlistSubscriptions.values() ).map( ( playlist ) => (
-                  <ListItem
-                    key={playlist}
-                    button={true}
-                    component="a"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={`https://www.youtube.com/playlist?list=${playlist}`}
-                  >
-                    <ListItemText primary={playlist} />
-                    <ListItemSecondaryAction>
-                      <IconButton title="Remove" onClick={() => this.onRemovePlaylist( playlist )}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                ) )
+                Array.from( playlistSubscriptions.values() ).map( ( playlistId ) =>
+                {
+                  let playlist = this.props.youtubePlaylists.items[ playlistId ];
+
+                  let text = playlistId;
+                  let thumbnail = (
+                    <Avatar>
+                      <PlayArrowIcon />
+                    </Avatar>
+                  );
+
+                  if( playlist )
+                  {
+                    text = playlist.snippet.title;
+
+                    let avatarThumbnail = getYoutubeAvatarThumbnail( playlist.snippet.thumbnails );
+                    if( avatarThumbnail )
+                    {
+                      thumbnail = (
+                        <Avatar
+                          alt={text}
+                          src={avatarThumbnail.url}
+                        />
+                      );
+                    }
+                  }
+
+                  return (
+                    <ListItem
+                      key={playlistId}
+                      button={true}
+                      component="a"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://www.youtube.com/playlist?list=${playlistId}`}
+                    >
+                      <ListItemAvatar>
+                        {thumbnail}
+                      </ListItemAvatar>
+                      <ListItemText
+                        primary={text}
+                        classes={{
+                          primary: classes.listItemText
+                        }}
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton title="Remove" onClick={() => this.onRemovePlaylist( playlistId )}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  );
+                } )
               )}
           </List>
         </Paper>
@@ -117,14 +175,14 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
         >
           <TextField
             label="Playlist ID"
-            value={playlistId}
+            value={playlistIdValue}
             onChange={this.onPlaylistIdChange}
             fullWidth={true}
             variant="outlined"
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton type="submit" title="Subscribe" disabled={isTextEmpty( playlistId )}>
+                  <IconButton type="submit" title="Subscribe" disabled={isTextEmpty( playlistIdValue )}>
                     <AddIcon />
                   </IconButton>
                 </InputAdornment>
@@ -134,6 +192,27 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
         </form>
       </div>
     );
+  }
+
+  private async onUpdate()
+  {
+    if( this.props.playlistSubscriptions.size > 0 )
+    {
+      let playlistIds = Array.from( this.props.playlistSubscriptions )
+        .filter( ( playlistId ) => mappedResourceNeedsLoad( playlistId, this.props.youtubePlaylists ) );
+      if( playlistIds.length > 0 )
+      {
+        try
+        {
+          console.log( 'Retrieving youtube playlists' );
+          await this.props.retrieveYoutubePlaylists( playlistIds );
+        }
+        catch( e )
+        {
+          console.error( 'Failed to retrieve playlists:', e );
+        }
+      }
+    }
   }
 
   private onTabsQuery = ( tabs: chrome.tabs.Tab[] ) =>
@@ -170,30 +249,30 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     if( playlistId )
     {
       console.log( 'Playlist ID:', playlistId );
-      this.setState( { playlistId: playlistId } );
+      this.setState( { playlistIdValue: playlistId } );
     }
   }
 
   private onPlaylistIdChange = ( e: React.ChangeEvent<HTMLInputElement> ) =>
   {
-    this.setState( { playlistId: e.target.value } );
+    this.setState( { playlistIdValue: e.target.value } );
   }
 
   private onAddPlaylistSubmit = ( e: React.FormEvent ) =>
   {
     e.preventDefault();
 
-    if( isTextEmpty( this.state.playlistId ) )
+    if( isTextEmpty( this.state.playlistIdValue ) )
     {
       return;
     }
 
-    console.log( 'Add playlist subscription:', this.state.playlistId );
+    console.log( 'Add playlist subscription:', this.state.playlistIdValue );
     let playlistSubscriptions = new Set( this.props.playlistSubscriptions );
-    playlistSubscriptions.add( this.state.playlistId );
+    playlistSubscriptions.add( this.state.playlistIdValue );
 
     this.props.setPlaylistSubscriptions( playlistSubscriptions );
-    this.setState( { playlistId: '' } );
+    this.setState( { playlistIdValue: '' } );
   }
 
   private onRemovePlaylist = ( playlistId: string ) =>
@@ -209,10 +288,12 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
 
 export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
   ( state ) => ( {
-    playlistSubscriptions: state.storage.playlistSubscriptions
+    playlistSubscriptions: state.storage.playlistSubscriptions,
+    youtubePlaylists: state.youtubeApi.playlists
   } ),
   {
     loadPlaylistSubscriptions: thunkToAction( loadPlaylistSubscriptions.action ),
-    setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action )
+    setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action ),
+    retrieveYoutubePlaylists: thunkToAction( retrieveYoutubePlaylists.action )
   }
 )( withStyles( styles )( BrowserActionPopup ) );

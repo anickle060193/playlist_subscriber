@@ -1,0 +1,56 @@
+{
+  "$id": "youtube_playlist_item_snippet",
+  "type": "object",
+  "required": [
+    "publishedAt",
+    "channelId",
+    "title",
+    "description",
+    "thumbnails",
+    "channelTitle",
+    "playlistId",
+    "position",
+    "resourceId"
+  ],
+  "properties": {
+    "publishedAt": {
+      "type": "string"
+    },
+    "channelId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "thumbnails": {
+      "$ref": "youtube_thumbnails"
+    },
+    "channelTitle": {
+      "type": "string"
+    },
+    "playlistId": {
+      "type": "string"
+    },
+    "position": {
+      "type": "number"
+    },
+    "resourceId": {
+      "type": "object",
+      "required": [
+        "kind",
+        "videoId"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "videoid": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

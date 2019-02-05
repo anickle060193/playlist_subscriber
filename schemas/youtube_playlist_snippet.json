@@ -1,0 +1,48 @@
+{
+  "$id": "youtube_playlist_snippet",
+  "type": "object",
+  "required": [
+    "publishedAt",
+    "channelId",
+    "title",
+    "description",
+    "thumbnails",
+    "channelTitle",
+    "localized"
+  ],
+  "properties": {
+    "publishedAt": {
+      "type": "string"
+    },
+    "channelId": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "thumbnails": {
+      "$ref": "youtube_thumbnails"
+    },
+    "channelTitle": {
+      "type": "string"
+    },
+    "localized": {
+      "type": "object",
+      "required": [
+        "title",
+        "description"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

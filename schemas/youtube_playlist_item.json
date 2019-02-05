@@ -1,0 +1,24 @@
+{
+  "$id": "youtube_playlist_item",
+  "type": "object",
+  "required": [
+    "kind",
+    "etag",
+    "id",
+    "snippet"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string"
+    },
+    "etag": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "snippet": {
+      "$ref": "youtube_playlist_item_snippet"
+    }
+  }
+}
