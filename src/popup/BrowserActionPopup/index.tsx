@@ -17,11 +17,13 @@ import
   InputAdornment,
   Typography,
   Avatar,
-  ListItemAvatar
+  ListItemAvatar,
+  Tooltip
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 import { setPlaylistSubscriptions, loadPlaylistSubscriptions } from 'store/reducers/storage';
 import { retrieveYoutubePlaylists } from 'store/reducers/youtubeApi';
@@ -36,6 +38,19 @@ const styles = ( theme: Theme ) => createStyles( {
     display: 'flex',
     flexDirection: 'column'
   },
+  titleRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  title: {
+    flex: 1
+  },
+  openInNewButton: {
+    marginTop: -theme.spacing.unit,
+    marginBottom: theme.spacing.unit / 2,
+    padding: theme.spacing.unit
+  },
   list: {
     maxHeight: 500,
     overflow: 'auto'
@@ -45,6 +60,11 @@ const styles = ( theme: Theme ) => createStyles( {
     overflow: 'hidden',
     whiteSpace: 'normal',
     lineClamp: 2
+  },
+  removeButton: {
+    '&:hover': {
+      color: theme.palette.secondary.main
+    }
   },
   form: {
     marginTop: theme.spacing.unit * 2
@@ -103,7 +123,19 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
 
     return (
       <div className={classes.root}>
-        <Typography variant="h6">Playlist Subscriptions</Typography>
+        <div className={classes.titleRow}>
+          <Typography variant="h6" className={classes.title}>Playlist Subscriptions</Typography>
+          <Tooltip title="Open Playlist Subscriber" placement="left" enterDelay={500}>
+            <IconButton
+              className={classes.openInNewButton}
+              href={chrome.extension.getURL( './main.html' )}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <OpenInNewIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
         <Paper>
           <List className={classes.list}>
             {( playlistSubscriptions.size === 0 ) ?
@@ -159,9 +191,14 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
                         }}
                       />
                       <ListItemSecondaryAction>
-                        <IconButton title="Remove" onClick={() => this.onRemovePlaylist( playlistId )}>
-                          <DeleteIcon />
-                        </IconButton>
+                        <Tooltip title="Remove" placement="left" enterDelay={500}>
+                          <IconButton
+                            className={classes.removeButton}
+                            onClick={() => this.onRemovePlaylist( playlistId )}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
                       </ListItemSecondaryAction>
                     </ListItem>
                   );

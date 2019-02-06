@@ -1,6 +1,7 @@
 {
   "extends": [
-    "tslint:recommended"
+    "tslint:latest",
+    "tslint-react"
   ],
   "linterOptions": {
     "exclude": [
@@ -65,8 +66,20 @@
     "no-duplicate-variable": true,
     "no-empty": true,
     "no-eval": true,
+    "no-implicit-dependencies": [
+      true,
+      [
+        "background",
+        "common",
+        "main",
+        "popup",
+        "store",
+        "utils"
+      ]
+    ],
     "no-shadowed-variable": true,
     "no-string-literal": true,
+    "no-submodule-imports": false,
     "no-switch-case-fall-through": true,
     "no-trailing-whitespace": true,
     "no-unnecessary-initializer": false,
@@ -86,6 +99,10 @@
     "semicolon": [
       true,
       "always"
+    ],
+    "space-within-parens": [
+      true,
+      1
     ],
     "switch-default": true,
     "strict-type-predicates": true,

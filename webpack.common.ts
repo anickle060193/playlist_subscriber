@@ -10,6 +10,7 @@ const config: webpack.Configuration = {
   entry: {
     background: path.resolve( __dirname, 'src', 'background', 'index.ts' ),
     popup: path.resolve( __dirname, 'src', 'popup', 'index.tsx' ),
+    main: path.resolve( __dirname, 'src', 'main', 'index.tsx' ),
   },
   output: {
     filename: '[name].bundle.js',
@@ -48,6 +49,7 @@ const config: webpack.Configuration = {
       background: path.resolve( __dirname, 'src', 'background' ),
       common: path.resolve( __dirname, 'src', 'common' ),
       popup: path.resolve( __dirname, 'src', 'popup' ),
+      main: path.resolve( __dirname, 'src', 'main' ),
       store: path.resolve( __dirname, 'src', 'store' ),
       utils: path.resolve( __dirname, 'src', 'utils' ),
     }
@@ -71,6 +73,11 @@ const config: webpack.Configuration = {
       filename: 'popup.html',
       template: path.resolve( __dirname, 'src', 'popup', 'index.html' ),
       chunks: [ 'popup' ]
+    } ),
+    new HtmlWebpackPlugin( {
+      filename: 'main.html',
+      template: path.resolve( __dirname, 'src', 'main', 'index.html' ),
+      chunks: [ 'main' ]
     } )
   ]
 };

@@ -5,12 +5,12 @@ const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
 const KEY = atob( 'QUl6YVN5RDFJb2ZoN1JXVThPTTRDUzVQVHdkakJFczA0am9oQzZV' );
 
-function formatUrl( baseUrl: string, params: { [ key: string ]: string } )
+function formatUrl( baseUrl: string, params: { [ key: string ]: string | { toString(): string } } )
 {
   let url = new URL( baseUrl );
   for( let [ key, value ] of Object.entries( params ) )
   {
-    url.searchParams.set( key, value );
+    url.searchParams.set( key, value.toString() );
   }
   return url.href;
 }
@@ -20,7 +20,8 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
   let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlists`, {
     key: KEY,
     part: 'snippet',
-    id: playlistIds.join( ',' )
+    id: playlistIds.join( ',' ),
+    maxResults: 50
   } ) );
 
   let data = await response.json();
@@ -40,7 +41,8 @@ export async function fetchYoutubePlaylistVideos( playlistId: string ): Promise<
   let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlistItems`, {
     key: KEY,
     part: 'snippet',
-    playlistId: playlistId
+    playlistId: playlistId,
+    maxResults: 50
   } ) );
 
   let data = await response.json();
