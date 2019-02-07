@@ -1,6 +1,4 @@
 import React = require( 'react' );
-import { connect } from 'react-redux';
-import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import
 {
   List,
@@ -25,11 +23,9 @@ import AddIcon from '@material-ui/icons/Add';
 import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
-import { setPlaylistSubscriptions, loadPlaylistSubscriptions } from 'store/reducers/storage';
-import { retrieveYoutubePlaylists } from 'store/reducers/youtubeApi';
+import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
 
-import { YoutubePlaylist, getYoutubeAvatarThumbnail } from 'utils/youtube_api_types';
-import { MappedResource, mappedResourceNeedsLoad } from 'utils/resource';
+import { getYoutubeAvatarThumbnail } from 'utils/youtube_api_types';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -76,20 +72,7 @@ function isTextEmpty( text: string | null | undefined )
   return !text || /^\s*$/.test( text );
 }
 
-interface PropsFromState
-{
-  playlistSubscriptions: Set<string>;
-  youtubePlaylists: MappedResource<YoutubePlaylist>;
-}
-
-interface PropsFromDispatch
-{
-  loadPlaylistSubscriptions: () => Promise<Set<string>>;
-  setPlaylistSubscriptions: ( subscriptions: Set<string> ) => void;
-  retrieveYoutubePlaylists: ( playlistIds: string[] ) => Promise<void>;
-}
-
-type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles>;
+type Props = WithPlaylistsProps & WithStyles<typeof styles>;
 
 interface State
 {
@@ -105,15 +88,6 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
   public componentDidMount()
   {
     chrome.tabs.query( { active: true }, this.onTabsQuery );
-
-    this.props.loadPlaylistSubscriptions();
-
-    this.onUpdate();
-  }
-
-  public componentDidUpdate()
-  {
-    this.onUpdate();
   }
 
   public render()
@@ -231,27 +205,6 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     );
   }
 
-  private async onUpdate()
-  {
-    if( this.props.playlistSubscriptions.size > 0 )
-    {
-      let playlistIds = Array.from( this.props.playlistSubscriptions )
-        .filter( ( playlistId ) => mappedResourceNeedsLoad( playlistId, this.props.youtubePlaylists ) );
-      if( playlistIds.length > 0 )
-      {
-        try
-        {
-          console.log( 'Retrieving youtube playlists' );
-          await this.props.retrieveYoutubePlaylists( playlistIds );
-        }
-        catch( e )
-        {
-          console.error( 'Failed to retrieve playlists:', e );
-        }
-      }
-    }
-  }
-
   private onTabsQuery = ( tabs: chrome.tabs.Tab[] ) =>
   {
     if( chrome.runtime.lastError )
@@ -323,14 +276,4 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
   }
 }
 
-export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
-  ( state ) => ( {
-    playlistSubscriptions: state.storage.playlistSubscriptions,
-    youtubePlaylists: state.youtubeApi.playlists
-  } ),
-  {
-    loadPlaylistSubscriptions: thunkToAction( loadPlaylistSubscriptions.action ),
-    setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action ),
-    retrieveYoutubePlaylists: thunkToAction( retrieveYoutubePlaylists.action )
-  }
-)( withStyles( styles )( BrowserActionPopup ) );
+export default withPlaylists( withStyles( styles )( BrowserActionPopup ) );

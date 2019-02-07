@@ -36,7 +36,7 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
   return playlistsResponse.items;
 }
 
-export async function fetchYoutubePlaylistVideos( playlistId: string ): Promise<YoutubePlaylistItem[]>
+export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<YoutubePlaylistItem[]>
 {
   let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlistItems`, {
     key: KEY,

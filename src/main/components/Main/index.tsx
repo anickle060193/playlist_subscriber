@@ -19,11 +19,15 @@ import
   Tooltip
 } from '@material-ui/core';
 import { TooltipProps } from '@material-ui/core/Tooltip';
+import { SvgIconProps } from '@material-ui/core/SvgIcon';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import HomeIcon from '@material-ui/icons/Home';
 import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
+
+import HomePage from '../HomePage';
+import SubscriptionsPage from '../SubscriptionsPage';
 
 const drawerWidth = 240;
 
@@ -67,13 +71,22 @@ const styles = ( theme: Theme ) => createStyles( {
   toolbarOffset: theme.mixins.toolbar,
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3
+    padding: theme.spacing.unit * 3,
+    display: 'flex',
+    flexDirection: 'column'
   },
 } );
 
-const PAGES = [
-  { name: 'Home', IconComponent: HomeIcon },
-  { name: 'Subscriptions', IconComponent: SubscriptionsIcon },
+interface Page
+{
+  name: string;
+  IconComponent: React.ComponentType<SvgIconProps>;
+  PageComponent: React.ComponentType;
+}
+
+const PAGES: Page[] = [
+  { name: 'Home', IconComponent: HomeIcon, PageComponent: HomePage },
+  { name: 'Subscriptions', IconComponent: SubscriptionsIcon, PageComponent: SubscriptionsPage },
 ];
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (
@@ -89,7 +102,7 @@ const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enab
 interface State
 {
   drawerOpen: boolean;
-  selectedPage: number;
+  selectedPage: string;
 }
 
 type Props = WithStyles<typeof styles, true>;
@@ -98,13 +111,16 @@ class Main extends React.PureComponent<Props, State>
 {
   public readonly state: State = {
     drawerOpen: true,
-    selectedPage: 0,
+    selectedPage: PAGES[ 0 ].name,
   };
 
   public render()
   {
     const { classes, theme } = this.props;
     const { drawerOpen, selectedPage } = this.state;
+
+    const page = PAGES.find( ( { name } ) => name === selectedPage ) || PAGES[ 0 ];
+    const MainPageComponent = page.PageComponent;
 
     return (
       <div className={classes.root}>
@@ -155,11 +171,11 @@ class Main extends React.PureComponent<Props, State>
               >
                 <ListItem
                   button={true}
-                  selected={selectedPage === i}
-                  onClick={() => this.onPageSelected( i )}
+                  selected={selectedPage === name}
+                  onClick={() => this.onPageSelected( name )}
                 >
                   <ListItemIcon>
-                    <IconComponent color={( selectedPage === i ) ? 'secondary' : 'inherit'} />
+                    <IconComponent color={( selectedPage === name ) ? 'secondary' : 'inherit'} />
                   </ListItemIcon>
                   <ListItemText primary={name} />
                 </ListItem>
@@ -169,9 +185,7 @@ class Main extends React.PureComponent<Props, State>
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbarOffset} />
-          <Typography paragraph={true}>
-            Content
-          </Typography>
+          <MainPageComponent />
         </main>
       </div>
     );
@@ -187,7 +201,7 @@ class Main extends React.PureComponent<Props, State>
     this.setState( { drawerOpen: false } );
   }
 
-  private onPageSelected = ( page: number ) =>
+  private onPageSelected = ( page: string ) =>
   {
     this.setState( { selectedPage: page } );
   }

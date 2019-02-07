@@ -2,14 +2,14 @@ import actionCreatorFactory from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { asyncFactory } from 'typescript-fsa-redux-thunk';
 
-import { MappedResource } from 'utils/resource';
+import { MappedResource, mappedResourceRetrieveFailed, mappedResourceRetrieveDone, mappedResourceRetrieveStarted } from 'utils/resource';
 import { YoutubePlaylist, YoutubePlaylistItem } from 'utils/youtube_api_types';
-import { fetchYoutubePlaylists } from 'utils/youtube_api';
+import { fetchYoutubePlaylists, fetchYoutubePlaylistItems } from 'utils/youtube_api';
 
 export interface State
 {
   playlists: MappedResource<YoutubePlaylist>;
-  playlistVideos: MappedResource<YoutubePlaylistItem[]>;
+  playlistItems: MappedResource<YoutubePlaylistItem[]>;
 }
 
 const initialState: State = {
@@ -18,7 +18,7 @@ const initialState: State = {
     loading: {},
     error: {}
   },
-  playlistVideos: {
+  playlistItems: {
     items: {},
     loading: {},
     error: {}
@@ -50,6 +50,19 @@ export const retrieveYoutubePlaylists = createAsyncAction( 'RETRIEVE_YOUTUBE_PLA
       playlist: youtubePlaylistsMap[ playlistId ] || playlists.items[ playlistId ]
     } ) );
   }
+} );
+
+export const retrieveYoutubePlaylistItems = createAsyncAction( 'RETRIEVE_YOUTUBE_PLAYLIST_ITEMS', async ( playlistId: string, dispatch, getState ) =>
+{
+  let { youtubeApi: { playlistItems } } = getState();
+
+  const result = playlistItems.items[ playlistId ];
+  if( result )
+  {
+    return result;
+  }
+
+  return fetchYoutubePlaylistItems( playlistId );
 } );
 
 export const reducer = reducerWithInitialState( initialState )
@@ -97,4 +110,16 @@ export const reducer = reducerWithInitialState( initialState )
         [ playlistId ]: playlist ? null : new Error( 'Could not find playlist ' + playlistId )
       }
     }
+  } ) )
+  .case( retrieveYoutubePlaylistItems.async.started, ( state, playlistId ) => ( {
+    ...state,
+    playlistItems: mappedResourceRetrieveStarted( state.playlistItems, playlistId )
+  } ) )
+  .case( retrieveYoutubePlaylistItems.async.done, ( state, { params: playlistId, result: playlistItems } ) => ( {
+    ...state,
+    playlistItems: mappedResourceRetrieveDone( state.playlistItems, playlistId, playlistItems )
+  } ) )
+  .case( retrieveYoutubePlaylistItems.async.failed, ( state, { params: playlistId, error } ) => ( {
+    ...state,
+    playlistItems: mappedResourceRetrieveFailed( state.playlistItems, playlistId, error )
   } ) );
