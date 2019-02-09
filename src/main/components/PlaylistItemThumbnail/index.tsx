@@ -1,14 +1,16 @@
 import React = require( 'react' );
 import moment from 'moment';
-import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton } from '@material-ui/core';
+import classNames from 'classnames';
+import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton, Menu, MenuItem } from '@material-ui/core';
 import PlayCircleFilledRoundedIcon from '@material-ui/icons/PlayCircleFilledRounded';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import NoReferrerAnchor from '../NoReferrerAnchor';
 
 import { YoutubePlaylistItem, getYoutubePlaylistItemThumbnail } from 'utils/youtube_api_types';
 
 const THUMBNAIL_WIDTH = 230;
-// const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * ( 9 / 16 );
+const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * ( 9 / 16 );
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -20,7 +22,8 @@ const styles = ( theme: Theme ) => createStyles( {
     position: 'relative'
   },
   thumbnail: {
-    width: '100%'
+    width: THUMBNAIL_WIDTH,
+    minHeight: THUMBNAIL_HEIGHT
   },
   thumbnailOverlay: {
     position: 'absolute',
@@ -40,8 +43,17 @@ const styles = ( theme: Theme ) => createStyles( {
       opacity: 0.8
     }
   },
-  itemTitle: {
+  details: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginTop: theme.spacing.unit,
+  },
+  detailsContent: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  itemTitle: {
     fontSize: '0.875rem',
     fontWeight: theme.typography.fontWeightMedium,
     lineHeight: '1.2rem',
@@ -60,6 +72,21 @@ const styles = ( theme: Theme ) => createStyles( {
   },
   channelTitle: {
     fontWeight: theme.typography.fontWeightLight
+  },
+  menuButton: {
+    padding: 4,
+    margin: -4,
+    opacity: 0,
+    '$root:hover &': {
+      background: 'none',
+      opacity: 0.6,
+      '&:hover': {
+        opacity: 1
+      }
+    }
+  },
+  menuButtonActive: {
+    opacity: 1
   }
 } );
 
@@ -69,15 +96,25 @@ interface Props extends WithStyles<typeof styles>
   showChannelTitle?: boolean;
 }
 
-class PlaylistItemThumbnail extends React.PureComponent<Props>
+interface State
+{
+  menuAnchorEl: HTMLElement | null;
+}
+
+class PlaylistItemThumbnail extends React.PureComponent<Props, State>
 {
   public static defaultProps: Partial<Props> = {
     showChannelTitle: false
   };
 
+  public readonly state: State = {
+    menuAnchorEl: null
+  };
+
   public render()
   {
     const { classes, playlistItem, showChannelTitle } = this.props;
+    const { menuAnchorEl } = this.state;
 
     if( playlistItem )
     {
@@ -102,27 +139,56 @@ class PlaylistItemThumbnail extends React.PureComponent<Props>
               <PlayCircleFilledRoundedIcon className={classes.thumbnailOverlayIcon} />
             </IconButton>
           </div>
-          <NoReferrerAnchor
-            className={classes.linkText}
-            href={`https://www.youtube.com/watch?v=${playlistItem.snippet.resourceId.videoId}`}
-          >
-            <Typography variant="subtitle1" className={classes.itemTitle}>
-              {playlistItem.snippet.title}
-            </Typography>
-          </NoReferrerAnchor>
-          {showChannelTitle && (
-            <NoReferrerAnchor
-              className={classes.linkText}
-              href={`https://www.youtube.com/channel/${playlistItem.snippet.channelId}`}
-            >
-              <Typography variant="subtitle2" className={classes.channelTitle}>
-                {playlistItem.snippet.channelTitle}
+          <div className={classes.details}>
+            <div className={classes.detailsContent}>
+              <NoReferrerAnchor
+                className={classes.linkText}
+                href={`https://www.youtube.com/watch?v=${playlistItem.snippet.resourceId.videoId}`}
+              >
+                <Typography variant="subtitle1" className={classes.itemTitle}>
+                  {playlistItem.snippet.title}
+                </Typography>
+              </NoReferrerAnchor>
+              {showChannelTitle && (
+                <NoReferrerAnchor
+                  className={classes.linkText}
+                  href={`https://www.youtube.com/channel/${playlistItem.snippet.channelId}`}
+                >
+                  <Typography variant="subtitle2" className={classes.channelTitle}>
+                    {playlistItem.snippet.channelTitle}
+                  </Typography>
+                </NoReferrerAnchor>
+              )}
+              <Typography variant="caption" component="time" {...{ dateTime: videoPublishedAt.toISOString( true ) }}>
+                {videoPublishedAt.fromNow()}
               </Typography>
-            </NoReferrerAnchor>
-          )}
-          <Typography variant="caption" component="time" {...{ dateTime: videoPublishedAt.toISOString( true ) }}>
-            {videoPublishedAt.fromNow()}
-          </Typography>
+            </div>
+            <IconButton
+              className={classNames( {
+                [ classes.menuButton ]: true,
+                [ classes.menuButtonActive ]: menuAnchorEl !== null
+              } )}
+              onClick={this.onMenuOpen}
+            >
+              <MoreVertIcon />
+            </IconButton>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={menuAnchorEl !== null}
+              onClose={this.onMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              getContentAnchorEl={null}
+            >
+              <MenuItem>Hide</MenuItem>
+            </Menu>
+          </div>
         </div>
       );
     }
@@ -137,6 +203,16 @@ class PlaylistItemThumbnail extends React.PureComponent<Props>
       </div>
       );
     }
+  }
+
+  private onMenuOpen = ( e: React.MouseEvent<HTMLElement> ) =>
+  {
+    this.setState( { menuAnchorEl: e.currentTarget } );
+  }
+
+  private onMenuClose = () =>
+  {
+    this.setState( { menuAnchorEl: null } );
   }
 }
 
