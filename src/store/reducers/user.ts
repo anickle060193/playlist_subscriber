@@ -1,10 +1,11 @@
 import actionCreatorFactory from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { asyncFactory } from 'typescript-fsa-redux-thunk';
+
 import { getSyncItem, setSyncItem } from 'utils/storage';
 import { validatePlaylistSubscriptions } from 'utils/validation';
 
-const STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY = 'storage::playlistSubscriptions';
+const PLAYLIST_SUBSCRIPTIONS_KEY = 'user::playlistSubscriptions';
 
 export interface State
 {
@@ -20,10 +21,10 @@ const createAsyncAction = asyncFactory<RootState>( createAction );
 
 export const loadPlaylistSubscriptions = createAsyncAction( 'LOAD_PLAYLIST_SUBSCRIPTIONS', async ( params, dispatch, getState ) =>
 {
-  let data = await getSyncItem<string[]>( STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY );
+  let data = await getSyncItem<string[]>( PLAYLIST_SUBSCRIPTIONS_KEY );
   if( typeof data === 'undefined' )
   {
-    let { storage: { playlistSubscriptions } } = getState();
+    let { user: { playlistSubscriptions } } = getState();
     return playlistSubscriptions;
   }
 
@@ -34,7 +35,7 @@ export const loadPlaylistSubscriptions = createAsyncAction( 'LOAD_PLAYLIST_SUBSC
 
 export const setPlaylistSubscriptions = createAsyncAction( 'SET_PLAYLIST_SUBSCRIPTIONS', ( playlistSubscriptions: Set<string> ) =>
 {
-  return setSyncItem( STORAGE_PLAYLIST_SUBSCRIPTIONS_KEY, Array.from( playlistSubscriptions ) );
+  return setSyncItem( PLAYLIST_SUBSCRIPTIONS_KEY, Array.from( playlistSubscriptions ) );
 } );
 
 export const reducer = reducerWithInitialState( initialState )
@@ -42,7 +43,7 @@ export const reducer = reducerWithInitialState( initialState )
     ...state,
     playlistSubscriptions: subscriptions
   } ) )
-  .case( setPlaylistSubscriptions.async.started, ( state, subscriptions ) => ( {
+  .case( setPlaylistSubscriptions.async.done, ( state, { params: subscriptions } ) => ( {
     ...state,
     playlistSubscriptions: subscriptions
   } ) );

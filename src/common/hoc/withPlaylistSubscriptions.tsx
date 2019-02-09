@@ -2,7 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { thunkToAction } from 'typescript-fsa-redux-thunk';
 
-import { loadPlaylistSubscriptions, setPlaylistSubscriptions } from 'store/reducers/storage';
+import { loadPlaylistSubscriptions, setPlaylistSubscriptions } from 'store/reducers/user';
 
 interface PropsFromState
 {
@@ -36,7 +36,7 @@ export default function withPlaylistSubscriptions( WrappedComponent: React.Compo
 
   return connect<PropsFromState, PropsFromDispatch, {}, RootState>(
     ( state ) => ( {
-      playlistSubscriptions: state.storage.playlistSubscriptions
+      playlistSubscriptions: state.user.playlistSubscriptions
     } ),
     {
       loadPlaylistSubscriptions: thunkToAction( loadPlaylistSubscriptions.action ),
