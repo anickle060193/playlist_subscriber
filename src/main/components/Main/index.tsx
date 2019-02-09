@@ -33,6 +33,7 @@ const drawerWidth = 240;
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
+    widht: '100%',
     display: 'flex',
     flexDirection: 'row'
   },
@@ -70,7 +71,8 @@ const styles = ( theme: Theme ) => createStyles( {
   },
   toolbarOffset: theme.mixins.toolbar,
   content: {
-    flexGrow: 1,
+    flex: 1,
+    minWidth: 0,
     padding: theme.spacing.unit * 3,
     display: 'flex',
     flexDirection: 'column'
@@ -85,8 +87,8 @@ interface Page
 }
 
 const PAGES: Page[] = [
-  { name: 'Home', IconComponent: HomeIcon, PageComponent: HomePage },
   { name: 'Subscriptions', IconComponent: SubscriptionsIcon, PageComponent: SubscriptionsPage },
+  { name: 'Home', IconComponent: HomeIcon, PageComponent: HomePage },
 ];
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (

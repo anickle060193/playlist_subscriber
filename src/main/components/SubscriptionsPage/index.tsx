@@ -1,6 +1,7 @@
 import React = require( 'react' );
 
 import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
+import PlaylistItemsRow from '../PlaylistItemsRow';
 
 class SubscriptionsPage extends React.PureComponent<WithPlaylistsProps>
 {
@@ -8,45 +9,18 @@ class SubscriptionsPage extends React.PureComponent<WithPlaylistsProps>
   {
     return (
       <div>
-        Playlist Subscriptions: {this.props.playlistSubscriptions.size}
-        <ul>
-          {Array.from( this.props.playlistSubscriptions ).map( ( playlistId ) =>
-          {
-            const playlist = this.props.youtubePlaylists.items[ playlistId ];
-            const playlistLoading = this.props.youtubePlaylists.loading[ playlistId ];
-            const playlistError = this.props.youtubePlaylists.error[ playlistId ];
-            const playlistItems = this.props.youtubePlaylistItems.items[ playlistId ];
-            const playlistItemsLoading = this.props.youtubePlaylistItems.loading[ playlistId ];
-            const playlistItemsError = this.props.youtubePlaylistItems.error[ playlistId ];
-
-            return (
-              <li key={playlistId}>
-                {playlist ? playlist.snippet.title : playlistId}
-                {playlistLoading && 'Playlist loading...'}
-                {playlistError && (
-                  <pre>
-                    {JSON.stringify( playlistError, null, 2 )}
-                  </pre>
-                )}
-                {playlistItemsLoading && 'Playlist items loading...'}
-                {playlistItemsError && (
-                  <pre>
-                    {JSON.stringify( playlistItemsError, null, 2 )}
-                  </pre>
-                )}
-                {playlistItems && (
-                  <ul>
-                    {playlistItems.map( ( playlistItem ) => (
-                      <li key={playlistItem.id}>
-                        {playlistItem.snippet.title}
-                      </li>
-                    ) )}
-                  </ul>
-                )}
-              </li>
-            );
-          } )}
-        </ul>
+        {Array.from( this.props.playlistSubscriptions ).map( ( playlistId ) => (
+          <PlaylistItemsRow
+            key={playlistId}
+            playlistId={playlistId}
+            playlist={this.props.youtubePlaylists.items[ playlistId ]}
+            playlistLoading={this.props.youtubePlaylists.loading[ playlistId ]}
+            playlistError={this.props.youtubePlaylists.error[ playlistId ]}
+            playlistItems={this.props.youtubePlaylistItems.items[ playlistId ]}
+            playlistItemsLoading={this.props.youtubePlaylistItems.loading[ playlistId ]}
+            playlistItemsError={this.props.youtubePlaylistItems.error[ playlistId ]}
+          />
+        ) )}
       </div>
     );
   }

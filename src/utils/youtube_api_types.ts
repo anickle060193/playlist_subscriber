@@ -63,12 +63,19 @@ export interface YoutubePlaylistItemSnippet
   };
 }
 
+export interface YoutubePlaylistItemContentDetails
+{
+  videoId: string;
+  videoPublishedAt: string;
+}
+
 export interface YoutubePlaylistItem
 {
   kind: string;
   etag: string;
   id: string;
   snippet: YoutubePlaylistItemSnippet;
+  contentDetails: YoutubePlaylistItemContentDetails;
 }
 
 export interface YoutubePlaylistItemsResponse
@@ -82,16 +89,25 @@ export interface YoutubePlaylistItemsResponse
   items: YoutubePlaylistItem[];
 }
 
-export function getYoutubeAvatarThumbnail( thumbnails: YoutubeThumbnails )
+export function getYoutubeAvatarThumbnail( thumbnails: YoutubeThumbnails ): YoutubeThumbnail | null
 {
-  let order: Array<keyof YoutubeThumbnails> = [ 'default', 'medium', 'standard', 'high', 'maxres' ];
-  for( let size of order )
-  {
-    const thumbnail = thumbnails[ size ];
-    if( thumbnail )
-    {
-      return thumbnail;
-    }
-  }
-  return null;
+  return (
+    thumbnails.default ||
+    thumbnails.medium ||
+    thumbnails.standard ||
+    thumbnails.high ||
+    thumbnails.maxres ||
+    null
+  );
+}
+
+export function getYoutubePlaylistItemThumbnail( thumbnails: YoutubeThumbnails ): YoutubeThumbnail | null
+{
+  return (
+    thumbnails.medium ||
+    thumbnails.standard ||
+    thumbnails.high ||
+    thumbnails.maxres ||
+    null
+  );
 }

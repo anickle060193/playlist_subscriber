@@ -1310,6 +1310,20 @@ var validate = (function() {
     };
     refVal1.errors = null;
     refVal[1] = refVal1;
+    var refVal2 = {
+      "$id": "youtube_playlist_item_content_details",
+      "type": "object",
+      "required": ["videoId", "videoPublishedAt"],
+      "properties": {
+        "videoId": {
+          "type": "string"
+        },
+        "videoPublishedAt": {
+          "type": "string"
+        }
+      }
+    };
+    refVal[2] = refVal2;
     return function validate(data, dataPath, parentData, parentDataProperty, rootData) {
       'use strict'; /*# sourceURL=youtube_playlist_item */
       var vErrors = null;
@@ -1461,6 +1475,128 @@ var validate = (function() {
           }
           var valid1 = errors === errs_1;
         }
+        var data1 = data.contentDetails;
+        if (data1 === undefined) {
+          valid1 = false;
+          var err = {
+            keyword: 'required',
+            dataPath: (dataPath || '') + "",
+            schemaPath: '#/required',
+            params: {
+              missingProperty: 'contentDetails'
+            },
+            message: 'should have required property \'contentDetails\'',
+            schema: validate.schema.properties,
+            parentSchema: validate.schema,
+            data: data
+          };
+          if (vErrors === null) vErrors = [err];
+          else vErrors.push(err);
+          errors++;
+        } else {
+          var errs_1 = errors;
+          var errs_2 = errors;
+          if ((data1 && typeof data1 === "object" && !Array.isArray(data1))) {
+            var errs__2 = errors;
+            var valid3 = true;
+            var data2 = data1.videoId;
+            if (data2 === undefined) {
+              valid3 = false;
+              var err = {
+                keyword: 'required',
+                dataPath: (dataPath || '') + '.contentDetails',
+                schemaPath: 'youtube_playlist_item_content_details/required',
+                params: {
+                  missingProperty: 'videoId'
+                },
+                message: 'should have required property \'videoId\'',
+                schema: refVal2.properties,
+                parentSchema: refVal2,
+                data: data1
+              };
+              if (vErrors === null) vErrors = [err];
+              else vErrors.push(err);
+              errors++;
+            } else {
+              var errs_3 = errors;
+              if (typeof data2 !== "string") {
+                var err = {
+                  keyword: 'type',
+                  dataPath: (dataPath || '') + '.contentDetails.videoId',
+                  schemaPath: 'youtube_playlist_item_content_details/properties/videoId/type',
+                  params: {
+                    type: 'string'
+                  },
+                  message: 'should be string',
+                  schema: refVal2.properties.videoId.type,
+                  parentSchema: refVal2.properties.videoId,
+                  data: data2
+                };
+                if (vErrors === null) vErrors = [err];
+                else vErrors.push(err);
+                errors++;
+              }
+              var valid3 = errors === errs_3;
+            }
+            var data2 = data1.videoPublishedAt;
+            if (data2 === undefined) {
+              valid3 = false;
+              var err = {
+                keyword: 'required',
+                dataPath: (dataPath || '') + '.contentDetails',
+                schemaPath: 'youtube_playlist_item_content_details/required',
+                params: {
+                  missingProperty: 'videoPublishedAt'
+                },
+                message: 'should have required property \'videoPublishedAt\'',
+                schema: refVal2.properties,
+                parentSchema: refVal2,
+                data: data1
+              };
+              if (vErrors === null) vErrors = [err];
+              else vErrors.push(err);
+              errors++;
+            } else {
+              var errs_3 = errors;
+              if (typeof data2 !== "string") {
+                var err = {
+                  keyword: 'type',
+                  dataPath: (dataPath || '') + '.contentDetails.videoPublishedAt',
+                  schemaPath: 'youtube_playlist_item_content_details/properties/videoPublishedAt/type',
+                  params: {
+                    type: 'string'
+                  },
+                  message: 'should be string',
+                  schema: refVal2.properties.videoPublishedAt.type,
+                  parentSchema: refVal2.properties.videoPublishedAt,
+                  data: data2
+                };
+                if (vErrors === null) vErrors = [err];
+                else vErrors.push(err);
+                errors++;
+              }
+              var valid3 = errors === errs_3;
+            }
+          } else {
+            var err = {
+              keyword: 'type',
+              dataPath: (dataPath || '') + '.contentDetails',
+              schemaPath: 'youtube_playlist_item_content_details/type',
+              params: {
+                type: 'object'
+              },
+              message: 'should be object',
+              schema: refVal2.type,
+              parentSchema: refVal2,
+              data: data1
+            };
+            if (vErrors === null) vErrors = [err];
+            else vErrors.push(err);
+            errors++;
+          }
+          var valid2 = errors === errs_2;
+          var valid1 = errors === errs_1;
+        }
       } else {
         var err = {
           keyword: 'type',
@@ -1485,7 +1621,7 @@ var validate = (function() {
   refVal1.schema = {
     "$id": "youtube_playlist_item",
     "type": "object",
-    "required": ["kind", "etag", "id", "snippet"],
+    "required": ["kind", "etag", "id", "snippet", "contentDetails"],
     "properties": {
       "kind": {
         "type": "string"
@@ -1498,6 +1634,9 @@ var validate = (function() {
       },
       "snippet": {
         "$ref": "youtube_playlist_item_snippet"
+      },
+      "contentDetails": {
+        "$ref": "youtube_playlist_item_content_details"
       }
     }
   };

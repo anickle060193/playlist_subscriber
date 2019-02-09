@@ -40,7 +40,7 @@ export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<Y
 {
   let response = await fetch( formatUrl( `${YOUTUBE_API_URL}/playlistItems`, {
     key: KEY,
-    part: 'snippet',
+    part: 'snippet,contentDetails',
     playlistId: playlistId,
     maxResults: 50
   } ) );

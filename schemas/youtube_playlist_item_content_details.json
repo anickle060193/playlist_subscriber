@@ -1,0 +1,16 @@
+{
+  "$id": "youtube_playlist_item_content_details",
+  "type": "object",
+  "required": [
+    "videoId",
+    "videoPublishedAt"
+  ],
+  "properties": {
+    "videoId": {
+      "type": "string"
+    },
+    "videoPublishedAt": {
+      "type": "string"
+    }
+  }
+}

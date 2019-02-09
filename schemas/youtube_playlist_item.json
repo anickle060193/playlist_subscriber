@@ -5,7 +5,8 @@
     "kind",
     "etag",
     "id",
-    "snippet"
+    "snippet",
+    "contentDetails"
   ],
   "properties": {
     "kind": {
@@ -19,6 +20,9 @@
     },
     "snippet": {
       "$ref": "youtube_playlist_item_snippet"
+    },
+    "contentDetails": {
+      "$ref": "youtube_playlist_item_content_details"
     }
   }
 }
