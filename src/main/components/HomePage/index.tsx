@@ -10,8 +10,7 @@ import { YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_
 const styles = ( theme: Theme ) => createStyles( {
   root: {
     display: 'flex',
-    flexFlow: 'row wrap',
-    justifyContent: 'center'
+    flexFlow: 'row wrap'
   }
 } );
 
