@@ -138,15 +138,15 @@ class Main extends React.PureComponent<Props, State>
 
   public async componentDidMount()
   {
-    try
-    {
-      let token = await this.props.retrieveYoutubeAuthToken( false );
-      console.log( 'Youtube Token:', token );
-    }
-    catch( e )
-    {
-      console.warn( 'Could not silently retrieve Youtube token:', e );
-    }
+    // try
+    // {
+    //   let token = await this.props.retrieveYoutubeAuthToken( false );
+    //   console.log( 'Youtube Token:', token );
+    // }
+    // catch( e )
+    // {
+    //   console.warn( 'Could not silently retrieve Youtube token:', e );
+    // }
   }
 
   public render()
@@ -179,7 +179,7 @@ class Main extends React.PureComponent<Props, State>
               Playlist Subscriber
             </Typography>
             <span className={classes.grow} />
-            {!token.item && (
+            {!token.item && false && (
               <Button
                 color="inherit"
                 className={classes.menuButton}
