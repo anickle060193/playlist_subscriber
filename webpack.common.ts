@@ -1,5 +1,6 @@
 import path = require( 'path' );
 import webpack = require( 'webpack' );
+import WebpackBar = require( 'webpackbar' );
 import CleanWebpackPlugin = require( 'clean-webpack-plugin' );
 import CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 import HtmlWebpackPlugin = require( 'html-webpack-plugin' );
@@ -55,6 +56,7 @@ const config: webpack.Configuration = {
     }
   },
   plugins: [
+    new WebpackBar(),
     new CleanWebpackPlugin( [ build ] ),
     new CopyWebpackPlugin( [
       {

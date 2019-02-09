@@ -68,6 +68,7 @@
     "no-eval": true,
     "no-implicit-dependencies": [
       true,
+      "dev",
       [
         "background",
         "common",
