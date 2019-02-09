@@ -1,8 +1,9 @@
 import playlistSubscriptionsValidator from './validators/playlist_subscriptions';
-import youtubePlaylistsResponseValidator from './validators/youtube_playlists_response';
-import youtubePlaylistItemsResponseValidator from './validators/youtube_playlist_items_response';
+import youtubePaginatedResponseValidator from './validators/youtube_paginated_response';
+import youtubePlaylistValidator from './validators/youtube_playlist';
+import youtubePlaylistItemValidator from './validators/youtube_playlist_item';
 
-import { YoutubePlaylistsResponse, YoutubePlaylistItemsResponse } from './youtube_api_types';
+import { YoutubePaginatedResponse, YoutubePlaylist, YoutubePlaylistItem } from './youtube_api_types';
 
 interface ValidatorError
 {
@@ -45,12 +46,17 @@ export function validatePlaylistSubscriptions( data: unknown )
   return validate<string[]>( playlistSubscriptionsValidator as Validator, data );
 }
 
-export function validateYoutubePlaylistsResponse( data: unknown )
+export function validateYoutubePaginatedResponse( data: unknown )
 {
-  return validate<YoutubePlaylistsResponse>( youtubePlaylistsResponseValidator as Validator, data );
+  return validate<YoutubePaginatedResponse<unknown>>( youtubePaginatedResponseValidator as Validator, data );
 }
 
-export function validateYoutubePlaylistItemsResponse( data: unknown )
+export function validateYoutubePlaylist( data: unknown )
 {
-  return validate<YoutubePlaylistItemsResponse>( youtubePlaylistItemsResponseValidator as Validator, data );
+  return validate<YoutubePlaylist>( youtubePlaylistValidator as Validator, data );
+}
+
+export function validateYoutubePlaylistItem( data: unknown )
+{
+  return validate<YoutubePlaylistItem>( youtubePlaylistItemValidator as Validator, data );
 }

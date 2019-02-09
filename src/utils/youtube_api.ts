@@ -1,5 +1,5 @@
 import { YoutubePlaylist, YoutubePlaylistItem } from './youtube_api_types';
-import { validateYoutubePlaylistsResponse, validateYoutubePlaylistItemsResponse } from './validation';
+import { validateYoutubePaginatedResponse, validateYoutubePlaylist, validateYoutubePlaylistItem } from './validation';
 
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
 
@@ -31,9 +31,34 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
     throw data;
   }
 
-  let playlistsResponse = validateYoutubePlaylistsResponse( data );
+  try
+  {
+    let playlistsResponse = validateYoutubePaginatedResponse( data );
 
-  return playlistsResponse.items;
+    let playlists = playlistsResponse.items
+      .map( ( playlistData ) =>
+      {
+        try
+        {
+          return validateYoutubePlaylist( playlistData );
+        }
+        catch( e )
+        {
+          console.error( 'Unexpected Youtube playlist format:', e );
+        }
+
+        return null;
+      } )
+      .filter( ( playlist ): playlist is YoutubePlaylist => !!playlist );
+
+    return playlists;
+  }
+  catch( e )
+  {
+    console.error( 'Unexpected Youtube playlists response format:', e );
+
+    throw new Error( 'Unable to retrieve playlists' );
+  }
 }
 
 export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<YoutubePlaylistItem[]>
@@ -52,7 +77,32 @@ export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<Y
     throw data;
   }
 
-  let playlistItemsResponse = validateYoutubePlaylistItemsResponse( data );
+  try
+  {
+    let playlistItemsResponse = validateYoutubePaginatedResponse( data );
 
-  return playlistItemsResponse.items;
+    let playlistItems = playlistItemsResponse.items
+      .map( ( playlistItemData ) =>
+      {
+        try
+        {
+          return validateYoutubePlaylistItem( playlistItemData );
+        }
+        catch( e )
+        {
+          console.error( 'Unexpected Youtube playlist item format:', e );
+        }
+
+        return null;
+      } )
+      .filter( ( playlistItem ): playlistItem is YoutubePlaylistItem => !!playlistItem );
+
+    return playlistItems;
+  }
+  catch( e )
+  {
+    console.error( 'Unexpected Youtube playlist items response format:', e );
+
+    throw new Error( 'Unable to retrieve playlist items' );
+  }
 }

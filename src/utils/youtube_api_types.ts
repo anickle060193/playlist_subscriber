@@ -1,5 +1,16 @@
 import moment from 'moment';
 
+export interface YoutubePaginatedResponse<T>
+{
+  kind: string;
+  etag: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
+  items: T[];
+}
+
 export interface YoutubeThumbnail
 {
   url: string;
@@ -38,17 +49,6 @@ export interface YoutubePlaylist
   snippet: YoutubePlaylistSnippet;
 }
 
-export interface YoutubePlaylistsResponse
-{
-  kind: string;
-  etag: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: YoutubePlaylist[];
-}
-
 export interface YoutubePlaylistItemSnippet
 {
   publishedAt: string;
@@ -78,17 +78,6 @@ export interface YoutubePlaylistItem
   id: string;
   snippet: YoutubePlaylistItemSnippet;
   contentDetails: YoutubePlaylistItemContentDetails;
-}
-
-export interface YoutubePlaylistItemsResponse
-{
-  kind: string;
-  etag: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-  items: YoutubePlaylistItem[];
 }
 
 export function getYoutubeAvatarThumbnail( thumbnails: YoutubeThumbnails ): YoutubeThumbnail | null
