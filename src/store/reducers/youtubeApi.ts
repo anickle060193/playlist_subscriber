@@ -2,7 +2,17 @@ import actionCreatorFactory from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
 import { asyncFactory } from 'typescript-fsa-redux-thunk';
 
-import { MappedResource, mappedResourceRetrieveFailed, mappedResourceRetrieveDone, mappedResourceRetrieveStarted } from 'utils/resource';
+import
+{
+  MappedResource,
+  Resource,
+  retrieveMappedResourceStartedHandler,
+  retrieveMappedResourceDoneHandler,
+  retrieveMappedResourceFailedHandler,
+  retrieveResourceStartedHandler,
+  retrieveResourceDoneHandler,
+  retrieveResourceFailedHandler
+} from 'utils/resource';
 import { YoutubePlaylist, YoutubePlaylistItem } from 'utils/youtube_api_types';
 import { fetchYoutubePlaylists, fetchYoutubePlaylistItems } from 'utils/youtube_api';
 
@@ -10,18 +20,24 @@ export interface State
 {
   playlists: MappedResource<YoutubePlaylist>;
   playlistItems: MappedResource<YoutubePlaylistItem[]>;
+  token: Resource<string>;
 }
 
 const initialState: State = {
   playlists: {
     items: {},
     loading: {},
-    error: {}
+    errors: {}
   },
   playlistItems: {
     items: {},
     loading: {},
-    error: {}
+    errors: {}
+  },
+  token: {
+    item: null,
+    loading: false,
+    error: null
   }
 };
 
@@ -65,6 +81,45 @@ export const retrieveYoutubePlaylistItems = createAsyncAction( 'RETRIEVE_YOUTUBE
   return fetchYoutubePlaylistItems( playlistId );
 } );
 
+export const retrieveYoutubeAuthToken = createAsyncAction( 'RETRIEVE_YOUTUBE_AUTH_TOKEN', ( interactive: boolean, dispatch, getState ) =>
+{
+  return new Promise<string>( ( resolve, reject ) =>
+  {
+    chrome.identity.getAuthToken( {
+      interactive: interactive,
+      scopes: [ 'https://www.googleapis.com/auth/youtube.readonly' ]
+    }, ( token ) =>
+      {
+        if( chrome.runtime.lastError )
+        {
+          reject( chrome.runtime.lastError );
+        }
+        else
+        {
+          resolve( token );
+        }
+      } );
+  } );
+} );
+
+export const clearYoutubeAuthToken = createAsyncAction( 'CLEAR_YOUTUBE_AUTH_TOKEN', ( token: string ) =>
+{
+  return new Promise<null>( ( resolve, reject ) =>
+  {
+    chrome.identity.removeCachedAuthToken( { token: token }, () =>
+    {
+      if( chrome.runtime.lastError )
+      {
+        reject( chrome.runtime.lastError );
+      }
+      else
+      {
+        resolve( null );
+      }
+    } );
+  } );
+} );
+
 export const reducer = reducerWithInitialState( initialState )
   .case( retrieveYoutubePlaylists.async.started, ( state, playlistIds ) =>
   {
@@ -77,8 +132,8 @@ export const reducer = reducerWithInitialState( initialState )
         loading: {
           ...state.playlists.loading
         },
-        error: {
-          ...state.playlists.error
+        errors: {
+          ...state.playlists.errors
         }
       }
     };
@@ -88,7 +143,7 @@ export const reducer = reducerWithInitialState( initialState )
       if( !state.playlists.items[ playlistId ] )
       {
         newState.playlists.loading[ playlistId ] = true;
-        newState.playlists.error[ playlistId ] = null;
+        newState.playlists.errors[ playlistId ] = null;
       }
     }
 
@@ -105,21 +160,45 @@ export const reducer = reducerWithInitialState( initialState )
         ...state.playlists.loading,
         [ playlistId ]: false
       },
-      error: {
-        ...state.playlists.error,
+      errors: {
+        ...state.playlists.errors,
         [ playlistId ]: playlist ? null : new Error( 'Could not find playlist ' + playlistId )
       }
     }
   } ) )
   .case( retrieveYoutubePlaylistItems.async.started, ( state, playlistId ) => ( {
     ...state,
-    playlistItems: mappedResourceRetrieveStarted( state.playlistItems, playlistId )
+    playlistItems: retrieveMappedResourceStartedHandler( state.playlistItems, playlistId )
   } ) )
   .case( retrieveYoutubePlaylistItems.async.done, ( state, { params: playlistId, result: playlistItems } ) => ( {
     ...state,
-    playlistItems: mappedResourceRetrieveDone( state.playlistItems, playlistId, playlistItems )
+    playlistItems: retrieveMappedResourceDoneHandler( state.playlistItems, playlistId, playlistItems )
   } ) )
   .case( retrieveYoutubePlaylistItems.async.failed, ( state, { params: playlistId, error } ) => ( {
     ...state,
-    playlistItems: mappedResourceRetrieveFailed( state.playlistItems, playlistId, error )
+    playlistItems: retrieveMappedResourceFailedHandler( state.playlistItems, playlistId, error )
+  } ) )
+  .case( retrieveYoutubeAuthToken.async.started, ( state ) => ( {
+    ...state,
+    token: retrieveResourceStartedHandler( state.token )
+  } ) )
+  .case( retrieveYoutubeAuthToken.async.done, ( state, { result: token } ) => ( {
+    ...state,
+    token: retrieveResourceDoneHandler( state.token, token )
+  } ) )
+  .case( retrieveYoutubeAuthToken.async.failed, ( state, { error } ) => ( {
+    ...state,
+    token: retrieveResourceFailedHandler( state.token, error )
+  } ) )
+  .case( clearYoutubeAuthToken.async.started, ( state ) => ( {
+    ...state,
+    token: retrieveResourceStartedHandler( state.token )
+  } ) )
+  .case( clearYoutubeAuthToken.async.done, ( state, { result: token } ) => ( {
+    ...state,
+    token: retrieveResourceDoneHandler( state.token, token )
+  } ) )
+  .case( clearYoutubeAuthToken.async.failed, ( state, { error } ) => ( {
+    ...state,
+    token: retrieveResourceFailedHandler( state.token, error )
   } ) );

@@ -1,11 +1,19 @@
 {
   "manifest_version": 2,
   "minimum_chrome_version": "49",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn7qQyqVg1VzVz7iBa5G5MTlPhjaxL86EtNThEbPmu90B5MOArfCssugi0JZWDIqMcwNL3DgKeOYrsXDXE3Avh5XEWyd8hdDU2r/NM27HTAvuJFQVF9llYNXOgPE72MxxJR9Gl9c3mrI7AghGs/Bu//uv/32GlaSPBgBicwBTbrB5xV7iQY8hJ4Cun5ejIwfwmVl4jWbRfz4PZJ1LfV3JtJq1xgLZ2G3WcyZ7mMP7nFfkeOBjwgpaY8e+yGLWvGaGecHrPGREsR3wvV7t7stZKH9nxmzBBEpvSTSlryvBcYn3JeVX83daRIPgHeoZHKu1yMqz2CF/asKXWkfmu0XhfwIDAQAB",
   "permissions": [
     "activeTab",
     "contextMenus",
+    "identity",
     "storage"
   ],
+  "oauth2": {
+    "client_id": "252307544559-dmmmbqlrnl7ib51i681li4bpv9lpk672.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube.readonly"
+    ]
+  },
   "browser_action": {
     "default_popup": "popup.html"
   },

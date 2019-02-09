@@ -32,10 +32,10 @@ class SubscriptionsPage extends React.PureComponent<WithPlaylistsProps & WithSty
               playlistId={playlistId}
               playlist={this.props.youtubePlaylists.items[ playlistId ]}
               playlistLoading={this.props.youtubePlaylists.loading[ playlistId ]}
-              playlistError={this.props.youtubePlaylists.error[ playlistId ]}
+              playlistError={this.props.youtubePlaylists.errors[ playlistId ]}
               playlistItems={this.props.youtubePlaylistItems.items[ playlistId ]}
               playlistItemsLoading={this.props.youtubePlaylistItems.loading[ playlistId ]}
-              playlistItemsError={this.props.youtubePlaylistItems.error[ playlistId ]}
+              playlistItemsError={this.props.youtubePlaylistItems.errors[ playlistId ]}
             />
           </div>
         ) )}

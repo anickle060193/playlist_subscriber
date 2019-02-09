@@ -7,7 +7,7 @@ import withPlaylistSubscriptions, { WithPlaylistSubscriptionsProps } from './wit
 import { retrieveYoutubePlaylists, retrieveYoutubePlaylistItems } from 'store/reducers/youtubeApi';
 
 import { YoutubePlaylist, YoutubePlaylistItem } from 'utils/youtube_api_types';
-import { MappedResource, mappedResourceNeedsRetrieved } from 'utils/resource';
+import { MappedResource, mappedResourceNeedsLoad } from 'utils/resource';
 
 interface PropsFromState
 {
@@ -58,14 +58,14 @@ export default function withPlaylists( WrappedComponent: React.ComponentType<Wit
         if( includePlaylistItems )
         {
           playlistSubscriptions
-            .filter( ( playlistId ) => mappedResourceNeedsRetrieved( playlistId, this.props.youtubePlaylistItems ) )
+            .filter( ( playlistId ) => mappedResourceNeedsLoad( this.props.youtubePlaylistItems, playlistId ) )
             .forEach( ( playlistId ) =>
             {
               promises.push( this.doRetrieveYoutubePlaylistItems( playlistId ) );
             } );
         }
 
-        let playlistsNeedRetrieved = playlistSubscriptions.filter( ( playlistId ) => mappedResourceNeedsRetrieved( playlistId, this.props.youtubePlaylists ) );
+        let playlistsNeedRetrieved = playlistSubscriptions.filter( ( playlistId ) => mappedResourceNeedsLoad( this.props.youtubePlaylists, playlistId ) );
         if( playlistsNeedRetrieved.length > 0 )
         {
           promises.push( this.doRetrieveYoutubePlaylists( playlistsNeedRetrieved ) );

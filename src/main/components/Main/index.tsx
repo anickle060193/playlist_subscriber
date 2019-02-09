@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import classNames from 'classnames';
 import
 {
@@ -16,7 +18,8 @@ import
   createStyles,
   WithStyles,
   withStyles,
-  Tooltip
+  Tooltip,
+  Button
 } from '@material-ui/core';
 import { TooltipProps } from '@material-ui/core/Tooltip';
 import { SvgIconProps } from '@material-ui/core/SvgIcon';
@@ -28,6 +31,10 @@ import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
 
 import HomePage from '../HomePage';
 import SubscriptionsPage from '../SubscriptionsPage';
+
+import { retrieveYoutubeAuthToken } from 'store/reducers/youtubeApi';
+
+import { Resource } from 'utils/resource';
 
 const drawerWidth = 240;
 
@@ -48,6 +55,9 @@ const styles = ( theme: Theme ) => createStyles( {
   menuButton: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit
+  },
+  grow: {
+    flexGrow: 1
   },
   drawer: {
     width: drawerWidth,
@@ -101,13 +111,23 @@ const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enab
     )
 );
 
+interface PropsFromState
+{
+  token: Resource<string>;
+}
+
+interface PropsFromDispatch
+{
+  retrieveYoutubeAuthToken: ( interactive: boolean ) => Promise<string>;
+}
+
 interface State
 {
   drawerOpen: boolean;
   selectedPage: string;
 }
 
-type Props = WithStyles<typeof styles, true>;
+type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles, true>;
 
 class Main extends React.PureComponent<Props, State>
 {
@@ -116,9 +136,22 @@ class Main extends React.PureComponent<Props, State>
     selectedPage: PAGES[ 0 ].name,
   };
 
+  public async componentDidMount()
+  {
+    try
+    {
+      let token = await this.props.retrieveYoutubeAuthToken( false );
+      console.log( 'Youtube Token:', token );
+    }
+    catch( e )
+    {
+      console.warn( 'Could not silently retrieve Youtube token:', e );
+    }
+  }
+
   public render()
   {
-    const { classes, theme } = this.props;
+    const { classes, theme, token } = this.props;
     const { drawerOpen, selectedPage } = this.state;
 
     const page = PAGES.find( ( { name } ) => name === selectedPage ) || PAGES[ 0 ];
@@ -145,6 +178,17 @@ class Main extends React.PureComponent<Props, State>
             <Typography variant="h6" color="inherit" noWrap={true}>
               Playlist Subscriber
             </Typography>
+            <span className={classes.grow} />
+            {!token.item && (
+              <Button
+                color="inherit"
+                className={classes.menuButton}
+                onClick={this.onYoutubeSignInClick}
+                disabled={token.loading}
+              >
+                Sign In to YouTube
+              </Button>
+            )}
           </Toolbar>
         </AppBar>
         <Drawer
@@ -203,10 +247,30 @@ class Main extends React.PureComponent<Props, State>
     this.setState( { drawerOpen: false } );
   }
 
+  private onYoutubeSignInClick = async () =>
+  {
+    try
+    {
+      let token = await this.props.retrieveYoutubeAuthToken( true );
+      console.log( 'Youtube Token:', token );
+    }
+    catch( e )
+    {
+      console.error( 'Failed to retrieve Youtube token:', e );
+    }
+  }
+
   private onPageSelected = ( page: string ) =>
   {
     this.setState( { selectedPage: page } );
   }
 }
 
-export default withStyles( styles, { withTheme: true } )( Main );
+export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
+  ( state ) => ( {
+    token: state.youtubeApi.token
+  } ),
+  {
+    retrieveYoutubeAuthToken: thunkToAction( retrieveYoutubeAuthToken.action )
+  }
+)( withStyles( styles, { withTheme: true } )( Main ) );

@@ -1,3 +1,10 @@
+export interface MappedResource<T>
+{
+  items: { [ key: string ]: T | null | undefined };
+  loading: { [ key: string ]: boolean | undefined };
+  errors: { [ key: string ]: Error | null | undefined };
+}
+
 export interface Resource<T>
 {
   item: T | null;
@@ -5,63 +12,97 @@ export interface Resource<T>
   error: Error | null;
 }
 
-export interface MappedResource<T>
+export function retrieveMappedResourceStartedHandler<T>( mappedResource: MappedResource<T>, id: string | number ): MappedResource<T>
 {
-  items: { [ key: string ]: T | null | undefined };
-  loading: { [ key: string ]: boolean | undefined };
-  error: { [ key: string ]: Error | null | undefined };
+  return {
+    ...mappedResource,
+    loading: {
+      ...mappedResource.loading,
+      [ id ]: true
+    },
+    errors: {
+      ...mappedResource.errors,
+      [ id ]: null
+    }
+  };
 }
 
-export function mappedResourceNeedsRetrieved<T>( key: string, mappedResource: MappedResource<T> )
+export function retrieveMappedResourceDoneHandler<T>( mappedResource: MappedResource<T>, id: string | number, resource: T | null ): MappedResource<T>
+{
+  return {
+    ...mappedResource,
+    items: {
+      ...mappedResource.items,
+      [ id ]: resource
+    },
+    loading: {
+      ...mappedResource.loading,
+      [ id ]: false
+    },
+    errors: {
+      ...mappedResource.errors,
+      [ id ]: null
+    }
+  };
+}
+
+export function retrieveMappedResourceFailedHandler<T>( mappedResource: MappedResource<T>, id: string | number, error: Error ): MappedResource<T>
+{
+  return {
+    ...mappedResource,
+    loading: {
+      ...mappedResource.loading,
+      [ id ]: false
+    },
+    errors: {
+      ...mappedResource.errors,
+      [ id ]: error
+    }
+  };
+}
+
+export function retrieveResourceStartedHandler<T>( resource: Resource<T> ): Resource<T>
+{
+  return {
+    ...resource,
+    loading: true,
+    error: null
+  };
+}
+
+export function retrieveResourceDoneHandler<T>( resource: Resource<T>, item: T | null ): Resource<T>
+{
+  return {
+    ...resource,
+    item,
+    loading: false,
+    error: null
+  };
+}
+
+export function retrieveResourceFailedHandler<T>( resource: Resource<T>, error: Error ): Resource<T>
+{
+  return {
+    ...resource,
+    loading: false,
+    error
+  };
+}
+
+export function mappedResourceNeedsLoad<T>( resource: MappedResource<T>, resourceId: string | number )
 {
   return (
-    !mappedResource.loading[ key ]
-    && typeof mappedResource.items[ key ] === 'undefined'
-    && typeof mappedResource.error[ key ] === 'undefined'
+    !resource.items[ resourceId ]
+    && !resource.loading[ resourceId ]
+    && !resource.errors[ resourceId ]
   );
 }
 
-export function mappedResourceRetrieveStarted<T>( resource: MappedResource<T>, key: string ): MappedResource<T>
+export function resourceNeedsLoad<T>( resource: Resource<T> )
 {
-  return {
-    ...resource,
-    loading: {
-      ...resource.loading,
-      [ key ]: true
-    }
-  };
-}
-
-export function mappedResourceRetrieveDone<T>( resource: MappedResource<T>, key: string, result: T ): MappedResource<T>
-{
-  return {
-    ...resource,
-    items: {
-      ...resource.items,
-      [ key ]: result
-    },
-    loading: {
-      ...resource.loading,
-      [ key ]: false
-    },
-    error: {
-      ...resource.error,
-      [ key ]: null
-    }
-  };
-}
-
-export function mappedResourceRetrieveFailed<T>( resource: MappedResource<T>, key: string, error: Error ): MappedResource<T>
-{
-  return {
-    ...resource,
-    loading: {
-      ...resource.loading,
-      [ key ]: false
-    },
-    error: {
-      ...resource.error,
-      [ key ]: error
-    }
-  };
+  return (
+    resource.item === null
+    && !resource.loading
+    && !resource.error
+  );
 }
