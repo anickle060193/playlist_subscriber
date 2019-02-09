@@ -87,8 +87,8 @@ interface Page
 }
 
 const PAGES: Page[] = [
-  { name: 'Subscriptions', IconComponent: SubscriptionsIcon, PageComponent: SubscriptionsPage },
   { name: 'Home', IconComponent: HomeIcon, PageComponent: HomePage },
+  { name: 'Subscriptions', IconComponent: SubscriptionsIcon, PageComponent: SubscriptionsPage },
 ];
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (

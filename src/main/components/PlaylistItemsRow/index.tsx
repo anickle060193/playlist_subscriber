@@ -1,12 +1,11 @@
 import React = require( 'react' );
-import moment from 'moment';
 import classNames from 'classnames';
 import { Theme, createStyles, WithStyles, withStyles, Typography } from '@material-ui/core';
 
 import NoReferrerAnchor from '../NoReferrerAnchor';
-import PlaylistItemThumbnail from '../PlaylistItemThumbnail';
+import PlaylistItemList from '../PlaylistItemList';
 
-import { YoutubePlaylist, YoutubePlaylistItem } from 'utils/youtube_api_types';
+import { YoutubePlaylist, YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -31,11 +30,6 @@ const styles = ( theme: Theme ) => createStyles( {
     overflowX: 'auto',
     paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit
-  },
-  playlistItem: {
-    '&:not( :last-child )': {
-      marginRight: theme.spacing.unit * 2
-    }
   }
 } );
 
@@ -61,7 +55,7 @@ class PlaylistItemsRow extends React.PureComponent<Props>
       playlistItems, playlistItemsError
     } = this.props;
 
-    let items = playlistItems && [ ...playlistItems ].sort( ( a, b ) => +moment( b.contentDetails.videoPublishedAt ) - +moment( a.contentDetails.videoPublishedAt ) );
+    let items = playlistItems && [ ...playlistItems ].sort( compareYoutubePlaylistItems );
 
     let error = playlistError && playlistError.message || playlistItemsError && playlistItemsError.message;
 
@@ -104,14 +98,9 @@ class PlaylistItemsRow extends React.PureComponent<Props>
           <div
             className={classes.row}
           >
-            {items.map( ( playlistItem ) => (
-              <div
-                key={playlistItem.id}
-                className={classes.playlistItem}
-              >
-                <PlaylistItemThumbnail playlistItem={playlistItem} />
-              </div>
-            ) )}
+            <PlaylistItemList
+              playlistItems={items}
+            />
           </div>
         )}
       </div>

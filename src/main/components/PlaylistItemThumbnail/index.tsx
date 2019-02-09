@@ -42,7 +42,9 @@ const styles = ( theme: Theme ) => createStyles( {
   },
   itemTitle: {
     marginTop: theme.spacing.unit,
+    fontSize: '0.875rem',
     fontWeight: theme.typography.fontWeightMedium,
+    lineHeight: '1.2rem',
     letterSpacing: 0,
     display: 'box',
     boxOrient: 'vertical',
@@ -51,23 +53,31 @@ const styles = ( theme: Theme ) => createStyles( {
     textOverflow: 'ellipsis',
     whiteSpace: 'normal'
   },
-  videoLink: {
+  linkText: {
     color: 'inherit',
     cursor: 'pointer',
     textDecoration: 'none'
+  },
+  channelTitle: {
+    fontWeight: theme.typography.fontWeightLight
   }
 } );
 
 interface Props extends WithStyles<typeof styles>
 {
   playlistItem: YoutubePlaylistItem | null | undefined;
+  showChannelTitle?: boolean;
 }
 
 class PlaylistItemThumbnail extends React.PureComponent<Props>
 {
+  public static defaultProps: Partial<Props> = {
+    showChannelTitle: false
+  };
+
   public render()
   {
-    const { classes, playlistItem } = this.props;
+    const { classes, playlistItem, showChannelTitle } = this.props;
 
     if( playlistItem )
     {
@@ -93,13 +103,23 @@ class PlaylistItemThumbnail extends React.PureComponent<Props>
             </IconButton>
           </div>
           <NoReferrerAnchor
-            className={classes.videoLink}
+            className={classes.linkText}
             href={`https://www.youtube.com/watch?v=${playlistItem.snippet.resourceId.videoId}`}
           >
-            <Typography variant="subtitle2" className={classes.itemTitle}>
+            <Typography variant="subtitle1" className={classes.itemTitle}>
               {playlistItem.snippet.title}
             </Typography>
           </NoReferrerAnchor>
+          {showChannelTitle && (
+            <NoReferrerAnchor
+              className={classes.linkText}
+              href={`https://www.youtube.com/channel/${playlistItem.snippet.channelId}`}
+            >
+              <Typography variant="subtitle2" className={classes.channelTitle}>
+                {playlistItem.snippet.channelTitle}
+              </Typography>
+            </NoReferrerAnchor>
+          )}
           <Typography variant="caption" component="time" {...{ dateTime: videoPublishedAt.toISOString( true ) }}>
             {videoPublishedAt.fromNow()}
           </Typography>

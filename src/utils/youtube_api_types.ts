@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export interface YoutubeThumbnail
 {
   url: string;
@@ -110,4 +112,9 @@ export function getYoutubePlaylistItemThumbnail( thumbnails: YoutubeThumbnails )
     thumbnails.maxres ||
     null
   );
+}
+
+export function compareYoutubePlaylistItems( a: YoutubePlaylistItem, b: YoutubePlaylistItem )
+{
+  return +moment( b.contentDetails.videoPublishedAt ) - +moment( a.contentDetails.videoPublishedAt );
 }
