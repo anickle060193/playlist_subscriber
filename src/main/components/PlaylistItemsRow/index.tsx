@@ -1,6 +1,6 @@
 import React = require( 'react' );
 import classNames from 'classnames';
-import { Theme, createStyles, WithStyles, withStyles, Typography, Fab } from '@material-ui/core';
+import { Theme, createStyles, WithStyles, withStyles, Typography, Fab, Tooltip } from '@material-ui/core';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import NoReferrerAnchor from '../NoReferrerAnchor';
@@ -125,13 +125,19 @@ class PlaylistItemsRow extends React.PureComponent<Props>
                 [ classes.hidden ]: items.length <= playlistVisibleItemCount
               } )}
             >
-              <Fab
-                color="default"
-                size="small"
-                onClick={this.onShowMoreClick}
+              <Tooltip
+                title="Show More"
+                enterDelay={300}
+                placement="left"
               >
-                <KeyboardArrowRightIcon />
-              </Fab>
+                <Fab
+                  color="default"
+                  size="small"
+                  onClick={this.onShowMoreClick}
+                >
+                  <KeyboardArrowRightIcon />
+                </Fab>
+              </Tooltip>
             </div>
           </div>
         )}
