@@ -20,10 +20,12 @@ class HomePage extends React.PureComponent<WithPlaylistsProps & WithStyles<typeo
   {
     const {
       classes,
+      playlistSubscriptions,
       youtubePlaylistItems
     } = this.props;
 
-    let playlistItemsList = Object.values( youtubePlaylistItems.items )
+    let playlistItemsList = playlistSubscriptions
+      .map( ( playlistId ) => youtubePlaylistItems.items[ playlistId ] )
       .filter<YoutubePlaylistItem[]>( ( playlistItems ): playlistItems is YoutubePlaylistItem[] => Array.isArray( playlistItems ) );
 
     let items = new Array<YoutubePlaylistItem>().concat( ...playlistItemsList ).sort( compareYoutubePlaylistItems );
