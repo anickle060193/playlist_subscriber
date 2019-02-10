@@ -195,10 +195,11 @@ class SettingsPage extends React.PureComponent<Props, State>
   private onImportUserDataFileChange = async ( e: React.ChangeEvent<HTMLInputElement> ) =>
   {
     const fileInput = e.target;
-    const files = fileInput.files;
+
+    const file = fileInput.files && fileInput.files[ 0 ];
     fileInput.value = '';
 
-    if( !files || files.length === 0 )
+    if( !file )
     {
       console.log( 'No files selected' );
       return;
@@ -207,7 +208,7 @@ class SettingsPage extends React.PureComponent<Props, State>
     let result: string;
     try
     {
-      result = await readFile( files[ 0 ] );
+      result = await readFile( file );
     }
     catch( e )
     {
