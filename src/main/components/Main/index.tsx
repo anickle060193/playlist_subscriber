@@ -28,9 +28,11 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import HomeIcon from '@material-ui/icons/Home';
 import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
+import SettingsIcon from '@material-ui/icons/Settings';
 
-import HomePage from '../HomePage';
-import SubscriptionsPage from '../SubscriptionsPage';
+import HomePage from 'main/components/HomePage';
+import SubscriptionsPage from 'main/components/SubscriptionsPage';
+import SettingsPage from 'main/components/SettingsPage';
 
 import { retrieveYoutubeAuthToken } from 'store/reducers/youtubeApi';
 
@@ -79,6 +81,14 @@ const styles = ( theme: Theme ) => createStyles( {
     overflowX: 'hidden',
     width: theme.spacing.unit * 7 + 1
   },
+  drawerList: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  drawerGrow: {
+    flex: 1
+  },
   toolbarOffset: theme.mixins.toolbar,
   content: {
     flex: 1,
@@ -89,17 +99,21 @@ const styles = ( theme: Theme ) => createStyles( {
   },
 } );
 
-interface Page
+const enum Page
 {
-  name: string;
-  IconComponent: React.ComponentType<SvgIconProps>;
-  PageComponent: React.ComponentType;
+  Home,
+  Subscriptions,
+  Settings,
+
+  PageCount
 }
 
-const PAGES: Page[] = [
-  { name: 'Home', IconComponent: HomeIcon, PageComponent: HomePage },
-  { name: 'Subscriptions', IconComponent: SubscriptionsIcon, PageComponent: SubscriptionsPage },
-];
+const PAGES: { [ page in Page ]: React.ComponentType<{}> } = {
+  [ Page.Home ]: HomePage,
+  [ Page.Subscriptions ]: SubscriptionsPage,
+  [ Page.Settings ]: SettingsPage,
+  [ Page.PageCount ]: () => null
+};
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (
   enabled ?
@@ -109,6 +123,35 @@ const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enab
     (
       props.children
     )
+);
+
+interface PageDrawerEntryProps
+{
+  page: Page;
+  label: string;
+  drawerOpen: boolean;
+  selectedPage: Page;
+  onClick: ( page: Page ) => void;
+  IconComponent: React.ComponentType<SvgIconProps>;
+}
+
+const PageDrawerEntry: React.SFC<PageDrawerEntryProps> = ( { page, label, drawerOpen, selectedPage, onClick, IconComponent } ) => (
+  <HideableTooltip
+    title={label}
+    placement="right"
+    enabled={!drawerOpen}
+  >
+    <ListItem
+      button={true}
+      selected={selectedPage === page}
+      onClick={() => onClick( page )}
+    >
+      <ListItemIcon>
+        <IconComponent color={( selectedPage === page ) ? 'secondary' : 'inherit'} />
+      </ListItemIcon>
+      <ListItemText primary={label} />
+    </ListItem>
+  </HideableTooltip>
 );
 
 interface PropsFromState
@@ -124,7 +167,7 @@ interface PropsFromDispatch
 interface State
 {
   drawerOpen: boolean;
-  selectedPage: string;
+  selectedPage: Page;
 }
 
 type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles, true>;
@@ -133,7 +176,7 @@ class Main extends React.PureComponent<Props, State>
 {
   public readonly state: State = {
     drawerOpen: true,
-    selectedPage: PAGES[ 0 ].name,
+    selectedPage: 0 as Page,
   };
 
   public async componentDidMount()
@@ -154,8 +197,8 @@ class Main extends React.PureComponent<Props, State>
     const { classes, theme, token } = this.props;
     const { drawerOpen, selectedPage } = this.state;
 
-    const page = PAGES.find( ( { name } ) => name === selectedPage ) || PAGES[ 0 ];
-    const MainPageComponent = page.PageComponent;
+    const validSelectedPage = 0 <= selectedPage && selectedPage < Page.PageCount ? selectedPage : 0 as Page;
+    const SelectedPagedComponent = PAGES[ validSelectedPage ];
 
     return (
       <div className={classes.root}>
@@ -207,31 +250,37 @@ class Main extends React.PureComponent<Props, State>
         >
           <div className={classes.toolbarOffset} />
           <Divider />
-          <List>
-            {PAGES.map( ( { name, IconComponent }, i ) => (
-              <HideableTooltip
-                key={i}
-                title={name}
-                placement="right"
-                enabled={!drawerOpen}
-              >
-                <ListItem
-                  button={true}
-                  selected={selectedPage === name}
-                  onClick={() => this.onPageSelected( name )}
-                >
-                  <ListItemIcon>
-                    <IconComponent color={( selectedPage === name ) ? 'secondary' : 'inherit'} />
-                  </ListItemIcon>
-                  <ListItemText primary={name} />
-                </ListItem>
-              </HideableTooltip>
-            ) )}
+          <List className={classes.drawerList}>
+            <PageDrawerEntry
+              page={Page.Home}
+              label="Home"
+              drawerOpen={drawerOpen}
+              selectedPage={validSelectedPage}
+              onClick={this.onPageSelected}
+              IconComponent={HomeIcon}
+            />
+            <PageDrawerEntry
+              page={Page.Subscriptions}
+              label="Subscriptions"
+              drawerOpen={drawerOpen}
+              selectedPage={validSelectedPage}
+              onClick={this.onPageSelected}
+              IconComponent={SubscriptionsIcon}
+            />
+            <div className={classes.drawerGrow} />
+            <PageDrawerEntry
+              page={Page.Settings}
+              label="Settings"
+              drawerOpen={drawerOpen}
+              selectedPage={validSelectedPage}
+              onClick={this.onPageSelected}
+              IconComponent={SettingsIcon}
+            />
           </List>
         </Drawer>
         <main className={classes.content}>
           <div className={classes.toolbarOffset} />
-          <MainPageComponent />
+          <SelectedPagedComponent />
         </main>
       </div>
     );
@@ -260,7 +309,7 @@ class Main extends React.PureComponent<Props, State>
     }
   }
 
-  private onPageSelected = ( page: string ) =>
+  private onPageSelected = ( page: Page ) =>
   {
     this.setState( { selectedPage: page } );
   }

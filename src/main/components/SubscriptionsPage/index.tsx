@@ -26,7 +26,7 @@ class SubscriptionsPage extends React.PureComponent<WithPlaylistsProps & WithSty
 
     return (
       <div className={classes.root}>
-        {Array.from( this.props.playlistSubscriptions ).map( ( playlistId ) => (
+        {this.props.playlistSubscriptions.map( ( playlistId ) => (
           <div key={playlistId} className={classes.row}>
             <PlaylistItemsRow
               playlistId={playlistId}

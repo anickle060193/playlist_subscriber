@@ -6,13 +6,13 @@ import { loadPlaylistSubscriptions, setPlaylistSubscriptions } from 'store/reduc
 
 interface PropsFromState
 {
-  playlistSubscriptions: Set<string>;
+  playlistSubscriptions: string[];
 }
 
 interface PropsFromDispatch
 {
-  loadPlaylistSubscriptions: () => Promise<Set<string>>;
-  setPlaylistSubscriptions: ( playlistSubscriptions: Set<string> ) => Promise<void>;
+  loadPlaylistSubscriptions: () => Promise<string[]>;
+  setPlaylistSubscriptions: ( playlistSubscriptions: string[] ) => Promise<void>;
 }
 
 export interface WithPlaylistSubscriptionsProps extends PropsFromState, PropsFromDispatch { }

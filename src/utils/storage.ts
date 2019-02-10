@@ -33,3 +33,21 @@ export function setSyncItem<T>( key: string, item: T )
     } );
   } );
 }
+
+export function clearSync()
+{
+  return new Promise<void>( ( resolve, reject ) =>
+  {
+    chrome.storage.sync.clear( () =>
+    {
+      if( chrome.runtime.lastError )
+      {
+        reject( chrome.runtime.lastError );
+      }
+      else
+      {
+        resolve();
+      }
+    } );
+  } );
+}

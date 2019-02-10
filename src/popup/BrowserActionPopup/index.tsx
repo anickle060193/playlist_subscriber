@@ -112,14 +112,14 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
         </div>
         <Paper>
           <List className={classes.list}>
-            {( playlistSubscriptions.size === 0 ) ?
+            {( playlistSubscriptions.length === 0 ) ?
               (
                 <ListItem>
                   <ListItemText primary="No playlist subscriptions" />
                 </ListItem>
               ) :
               (
-                Array.from( playlistSubscriptions.values() ).map( ( playlistId ) =>
+                playlistSubscriptions.map( ( playlistId ) =>
                 {
                   let playlist = this.props.youtubePlaylists.items[ playlistId ];
 
@@ -258,10 +258,16 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
     }
 
     console.log( 'Add playlist subscription:', this.state.playlistIdValue );
-    let playlistSubscriptions = new Set( this.props.playlistSubscriptions );
-    playlistSubscriptions.add( this.state.playlistIdValue );
 
-    this.props.setPlaylistSubscriptions( playlistSubscriptions );
+    let index = this.props.playlistSubscriptions.indexOf( this.state.playlistIdValue );
+    if( index !== -1 )
+    {
+      let playlistSubscriptions = [ ...this.props.playlistSubscriptions ];
+      playlistSubscriptions.splice( index, 1 );
+
+      this.props.setPlaylistSubscriptions( playlistSubscriptions );
+    }
+
     this.setState( { playlistIdValue: '' } );
   }
 
@@ -269,8 +275,7 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
   {
     console.log( 'Remove playlist subscription:', playlistId );
 
-    let playlistSubscriptions = new Set( this.props.playlistSubscriptions );
-    playlistSubscriptions.delete( playlistId );
+    let playlistSubscriptions = this.props.playlistSubscriptions.filter( ( id ) => id !== playlistId );
 
     this.props.setPlaylistSubscriptions( playlistSubscriptions );
   }

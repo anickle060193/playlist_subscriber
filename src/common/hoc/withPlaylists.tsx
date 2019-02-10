@@ -49,15 +49,13 @@ export default function withPlaylists( WrappedComponent: React.ComponentType<Wit
 
     private async onUpdate()
     {
-      if( this.props.playlistSubscriptions.size > 0 )
+      if( this.props.playlistSubscriptions.length > 0 )
       {
-        let playlistSubscriptions = Array.from( this.props.playlistSubscriptions );
-
         let promises: Array<Promise<void>> = [];
 
         if( includePlaylistItems )
         {
-          playlistSubscriptions
+          this.props.playlistSubscriptions
             .filter( ( playlistId ) => mappedResourceNeedsLoad( this.props.youtubePlaylistItems, playlistId ) )
             .forEach( ( playlistId ) =>
             {
@@ -65,7 +63,8 @@ export default function withPlaylists( WrappedComponent: React.ComponentType<Wit
             } );
         }
 
-        let playlistsNeedRetrieved = playlistSubscriptions.filter( ( playlistId ) => mappedResourceNeedsLoad( this.props.youtubePlaylists, playlistId ) );
+        let playlistsNeedRetrieved = this.props.playlistSubscriptions
+          .filter( ( playlistId ) => mappedResourceNeedsLoad( this.props.youtubePlaylists, playlistId ) );
         if( playlistsNeedRetrieved.length > 0 )
         {
           promises.push( this.doRetrieveYoutubePlaylists( playlistsNeedRetrieved ) );

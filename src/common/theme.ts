@@ -9,3 +9,13 @@ export const theme = createMuiTheme( {
     useNextVariants: true
   }
 } );
+
+export const redTheme = createMuiTheme( {
+  palette: {
+    primary: colors.blue,
+    secondary: colors.red
+  },
+  typography: {
+    useNextVariants: true
+  }
+} );

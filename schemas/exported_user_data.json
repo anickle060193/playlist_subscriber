@@ -1,0 +1,28 @@
+{
+  "$id": "exported_user_data",
+  "type": "object",
+  "required": [
+    "version",
+    "data"
+  ],
+  "properties": {
+    "version": {
+      "type": "number"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "data": {
+          "$ref": "exported_user_data_v1"
+        }
+      }
+    }
+  ]
+}
