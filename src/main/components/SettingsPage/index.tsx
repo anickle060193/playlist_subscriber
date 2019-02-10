@@ -28,6 +28,9 @@ import { readFile } from 'utils/file';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
+    height: '100%',
+    padding: theme.spacing.unit * 4,
+    overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
     '& > *:not( :first-child )': {

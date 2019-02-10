@@ -42,9 +42,11 @@ const drawerWidth = 240;
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
-    widht: '100%',
+    width: '100%',
+    height: '100%',
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    overflow: 'hidden',
   },
   appBar: {
     width: '100%',
@@ -89,14 +91,21 @@ const styles = ( theme: Theme ) => createStyles( {
   drawerGrow: {
     flex: 1
   },
+  contentContainer: {
+    flex: 1,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  },
   toolbarOffset: theme.mixins.toolbar,
   content: {
     flex: 1,
+    width: '100%',
     minWidth: 0,
-    padding: theme.spacing.unit * 3,
-    display: 'flex',
-    flexDirection: 'column'
-  },
+    minHeight: 0,
+    overflow: 'hidden'
+  }
 } );
 
 const enum Page
@@ -278,9 +287,11 @@ class Main extends React.PureComponent<Props, State>
             />
           </List>
         </Drawer>
-        <main className={classes.content}>
+        <main className={classes.contentContainer}>
           <div className={classes.toolbarOffset} />
-          <SelectedPagedComponent />
+          <div className={classes.content}>
+            <SelectedPagedComponent />
+          </div>
         </main>
       </div>
     );

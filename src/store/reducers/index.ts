@@ -1,18 +1,21 @@
 import { combineReducers } from 'redux';
 
-import { State as YoutubeApiState, reducer as youtubeApiReducer } from './youtubeApi';
+import { State as UiState, reducer as uiReducer } from './ui';
 import { State as UserState, reducer as userReducer } from './user';
+import { State as YoutubeApiState, reducer as youtubeApiReducer } from './youtubeApi';
 
 declare global
 {
   interface RootState
   {
-    youtubeApi: YoutubeApiState;
+    ui: UiState;
     user: UserState;
+    youtubeApi: YoutubeApiState;
   }
 }
 
 export default combineReducers<RootState>( {
-  youtubeApi: youtubeApiReducer,
-  user: userReducer
+  ui: uiReducer,
+  user: userReducer,
+  youtubeApi: youtubeApiReducer
 } );

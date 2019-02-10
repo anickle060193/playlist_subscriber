@@ -1,45 +1,91 @@
 import React = require( 'react' );
+import { connect } from 'react-redux';
 import { Theme, createStyles, WithStyles, withStyles } from '@material-ui/core';
 
 import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
 
 import PlaylistItemList from '../PlaylistItemList';
 
+import { showMoreHomeItems } from 'store/reducers/ui/main';
+
 import { YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
+    height: '100%',
+    padding: theme.spacing.unit * 4,
+    overflowY: 'auto',
     display: 'flex',
     flexFlow: 'row wrap'
   }
 } );
 
-class HomePage extends React.PureComponent<WithPlaylistsProps & WithStyles<typeof styles>>
+interface PropsFromState
+{
+  homeVisibleItemCount: number;
+}
+
+interface PropsFromDispatch
+{
+  showMoreHomeItems: () => void;
+}
+
+type OwnProps = WithPlaylistsProps;
+
+type Props = PropsFromState & PropsFromDispatch & OwnProps & WithStyles<typeof styles>;
+
+class HomePage extends React.PureComponent<Props>
 {
   public render()
   {
     const {
       classes,
-      playlistSubscriptions,
-      youtubePlaylistItems
+      homeVisibleItemCount
     } = this.props;
 
-    let playlistItemsList = playlistSubscriptions
-      .map( ( playlistId ) => youtubePlaylistItems.items[ playlistId ] )
-      .filter<YoutubePlaylistItem[]>( ( playlistItems ): playlistItems is YoutubePlaylistItem[] => Array.isArray( playlistItems ) );
-
-    let items = new Array<YoutubePlaylistItem>().concat( ...playlistItemsList ).sort( compareYoutubePlaylistItems );
+    let playlistItemsList = this.getPlaylistSubscriptionItems()
+      .sort( compareYoutubePlaylistItems )
+      .slice( 0, homeVisibleItemCount );
 
     return (
-      <div className={classes.root}>
+      <div
+        className={classes.root}
+        onScroll={this.onScroll}
+      >
         <PlaylistItemList
-          playlistItems={items}
+          playlistItems={playlistItemsList}
           rowMargin={true}
           showChannelTitle={true}
         />
       </div>
     );
   }
+
+  private getPlaylistSubscriptionItems()
+  {
+    let playlistItemsList = this.props.playlistSubscriptions
+      .map( ( playlistId ) => this.props.youtubePlaylistItems.items[ playlistId ] )
+      .filter<YoutubePlaylistItem[]>( ( playlistItems ): playlistItems is YoutubePlaylistItem[] => Array.isArray( playlistItems ) );
+
+    return new Array<YoutubePlaylistItem>()
+      .concat( ...playlistItemsList );
+  }
+
+  private onScroll = ( e: React.UIEvent<HTMLElement> ) =>
+  {
+    if( e.currentTarget.scrollHeight === e.currentTarget.scrollTop + e.currentTarget.clientHeight
+      && this.props.homeVisibleItemCount < this.getPlaylistSubscriptionItems().length )
+    {
+      this.props.showMoreHomeItems();
+    }
+  }
 }
 
-export default withPlaylists( withStyles( styles )( HomePage ), true );
+export default withPlaylists( withStyles( styles )( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
+  ( state ) => ( {
+    homeVisibleItemCount: state.ui.main.homeVisibleItemCount
+  } ),
+  {
+    showMoreHomeItems
+  }
+)( HomePage ) ), true );

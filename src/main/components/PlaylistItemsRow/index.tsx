@@ -1,6 +1,7 @@
 import React = require( 'react' );
 import classNames from 'classnames';
-import { Theme, createStyles, WithStyles, withStyles, Typography } from '@material-ui/core';
+import { Theme, createStyles, WithStyles, withStyles, Typography, Fab } from '@material-ui/core';
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
 import NoReferrerAnchor from '../NoReferrerAnchor';
 import PlaylistItemList from '../PlaylistItemList';
@@ -30,12 +31,22 @@ const styles = ( theme: Theme ) => createStyles( {
     overflowX: 'auto',
     paddingLeft: theme.spacing.unit,
     paddingRight: theme.spacing.unit
+  },
+  loadMoreFabContainer: {
+    alignSelf: 'center',
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit * 2
+  },
+  hidden: {
+    display: 'none'
   }
 } );
 
 interface Props extends WithStyles<typeof styles>
 {
   playlistId: string;
+  playlistVisibleItemCount: number;
+  showMorePlaylistItems: ( playlistId: string ) => void;
   playlist: YoutubePlaylist | null | undefined;
   playlistLoading: boolean | undefined;
   playlistError: Error | null | undefined;
@@ -51,6 +62,7 @@ class PlaylistItemsRow extends React.PureComponent<Props>
     const {
       classes,
       playlistId,
+      playlistVisibleItemCount,
       playlist, playlistError,
       playlistItems, playlistItemsError
     } = this.props;
@@ -99,12 +111,31 @@ class PlaylistItemsRow extends React.PureComponent<Props>
             className={classes.row}
           >
             <PlaylistItemList
-              playlistItems={items}
+              playlistItems={items.slice( 0, playlistVisibleItemCount )}
             />
+            <div
+              className={classNames( {
+                [ classes.loadMoreFabContainer ]: true,
+                [ classes.hidden ]: items.length <= playlistVisibleItemCount
+              } )}
+            >
+              <Fab
+                color="default"
+                size="small"
+                onClick={this.onShowMoreClick}
+              >
+                <KeyboardArrowRightIcon />
+              </Fab>
+            </div>
           </div>
         )}
       </div>
     );
+  }
+
+  private onShowMoreClick = () =>
+  {
+    this.props.showMorePlaylistItems( this.props.playlistId );
   }
 }
 
