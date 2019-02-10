@@ -31,7 +31,8 @@ const styles = ( theme: Theme ) => createStyles( {
     top: 0,
     right: 0,
     bottom: 0,
-    padding: 0
+    padding: 0,
+    borderRadius: 0
   },
   thumbnailOverlayIcon: {
     width: '3rem',
@@ -50,6 +51,7 @@ const styles = ( theme: Theme ) => createStyles( {
     marginTop: theme.spacing.unit,
   },
   detailsContent: {
+    flex: 1,
     display: 'flex',
     flexDirection: 'column'
   },

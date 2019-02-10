@@ -15,6 +15,9 @@ const styles = ( theme: Theme ) => createStyles( {
     overflowX: 'hidden',
     marginBottom: theme.spacing.unit * 2
   },
+  titles: {
+    paddingBottom: theme.spacing.unit
+  },
   titleLink: {
     display: 'inline-block',
     color: 'inherit',
@@ -30,7 +33,8 @@ const styles = ( theme: Theme ) => createStyles( {
     flexDirection: 'row',
     overflowX: 'auto',
     paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit
+    paddingRight: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit
   },
   loadMoreFabContainer: {
     alignSelf: 'center',
@@ -73,32 +77,34 @@ class PlaylistItemsRow extends React.PureComponent<Props>
 
     return (
       <div className={classes.root}>
-        {playlist ?
-          (
-            <span>
-              <NoReferrerAnchor
-                className={classNames( classes.titleLink, classes.playlistTitle )}
-                href={`https://www.youtube.com/playlist?list=${playlistId}`}
-              >
-                <Typography variant="h6">
-                  {playlist.snippet.title}
-                </Typography>
-              </NoReferrerAnchor>
-              <NoReferrerAnchor
-                className={classNames( classes.titleLink, classes.channelSubtitle )}
-                href={`https://www.youtube.com/channel/${playlist.snippet.channelId}`}
-              >
-                <Typography variant="subtitle1">
-                  {playlist.snippet.channelTitle}
-                </Typography>
-              </NoReferrerAnchor>
-            </span>
-          ) :
-          (
-            <Typography variant="h6">
-              {playlistId}
-            </Typography>
-          )}
+        <span className={classes.titles}>
+          {playlist ?
+            (
+              <>
+                <NoReferrerAnchor
+                  className={classNames( classes.titleLink, classes.playlistTitle )}
+                  href={`https://www.youtube.com/playlist?list=${playlistId}`}
+                >
+                  <Typography variant="h6">
+                    {playlist.snippet.title}
+                  </Typography>
+                </NoReferrerAnchor>
+                <NoReferrerAnchor
+                  className={classNames( classes.titleLink, classes.channelSubtitle )}
+                  href={`https://www.youtube.com/channel/${playlist.snippet.channelId}`}
+                >
+                  <Typography variant="subtitle1">
+                    {playlist.snippet.channelTitle}
+                  </Typography>
+                </NoReferrerAnchor>
+              </>
+            ) :
+            (
+              <Typography variant="h6">
+                {playlistId}
+              </Typography>
+            )}
+        </span>
 
         {error && (
           <Typography variant="body2" color="error">
