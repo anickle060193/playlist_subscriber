@@ -44,7 +44,9 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
         }
         catch( e )
         {
-          console.error( 'Unexpected Youtube playlist format:', e );
+          console.groupCollapsed( '%cUnexpected Youtube playlist format:', 'color: red' );
+          console.error( e );
+          console.groupEnd();
         }
 
         return null;
@@ -55,7 +57,9 @@ export async function fetchYoutubePlaylists( playlistIds: string[] ): Promise<Yo
   }
   catch( e )
   {
-    console.error( 'Unexpected Youtube playlists response format:', e );
+    console.groupCollapsed( '%cUnexpected Youtube playlists response format:', 'color: red' );
+    console.error( e );
+    console.groupEnd();
 
     throw new Error( 'Unable to retrieve playlists' );
   }
@@ -90,7 +94,9 @@ export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<Y
         }
         catch( e )
         {
-          console.error( 'Unexpected Youtube playlist item format:', e );
+          console.groupCollapsed( '%cUnexpected Youtube playlist item format:', 'color: red' );
+          console.error( e );
+          console.groupEnd();
         }
 
         return null;
@@ -101,7 +107,9 @@ export async function fetchYoutubePlaylistItems( playlistId: string ): Promise<Y
   }
   catch( e )
   {
-    console.error( 'Unexpected Youtube playlist items response format:', e );
+    console.groupCollapsed( '%cUnexpected Youtube playlist items response format:', 'color: red' );
+    console.error( e );
+    console.groupEnd();
 
     throw new Error( 'Unable to retrieve playlist items' );
   }
