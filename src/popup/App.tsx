@@ -1,10 +1,11 @@
 import React = require( 'react' );
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import { CssBaseline, MuiThemeProvider } from '@material-ui/core';
 
 import BrowserActionPopup from './BrowserActionPopup';
 
-import store from 'store';
+import { store, persistor } from 'store';
 
 import { theme } from 'common/theme';
 
@@ -16,7 +17,9 @@ export default class App extends React.PureComponent
       <Provider store={store}>
         <MuiThemeProvider theme={theme}>
           <CssBaseline />
-          <BrowserActionPopup />
+          <PersistGate persistor={persistor}>
+            <BrowserActionPopup />
+          </PersistGate>
         </MuiThemeProvider>
       </Provider>
     );

@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { thunkToAction } from 'typescript-fsa-redux-thunk';
 
-import { loadPlaylistSubscriptions, setPlaylistSubscriptions } from 'store/reducers/user';
+import { setPlaylistSubscriptions } from 'store/reducers/user';
 
 interface PropsFromState
 {
@@ -11,8 +10,7 @@ interface PropsFromState
 
 interface PropsFromDispatch
 {
-  loadPlaylistSubscriptions: () => Promise<string[]>;
-  setPlaylistSubscriptions: ( playlistSubscriptions: string[] ) => Promise<void>;
+  setPlaylistSubscriptions: ( playlistSubscriptions: string[] ) => void;
 }
 
 export interface WithPlaylistSubscriptionsProps extends PropsFromState, PropsFromDispatch { }
@@ -21,11 +19,6 @@ export default function withPlaylistSubscriptions( WrappedComponent: React.Compo
 {
   class WithPlaylistsComponent extends React.PureComponent<WithPlaylistSubscriptionsProps>
   {
-    public componentDidMount()
-    {
-      this.props.loadPlaylistSubscriptions();
-    }
-
     public render()
     {
       return (
@@ -39,8 +32,7 @@ export default function withPlaylistSubscriptions( WrappedComponent: React.Compo
       playlistSubscriptions: state.user.playlistSubscriptions
     } ),
     {
-      loadPlaylistSubscriptions: thunkToAction( loadPlaylistSubscriptions.action ),
-      setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action )
+      setPlaylistSubscriptions
     }
   )( WithPlaylistsComponent );
 }

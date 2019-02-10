@@ -1,6 +1,5 @@
 import React = require( 'react' );
 import { connect } from 'react-redux';
-import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import
 {
   Theme,
@@ -56,8 +55,8 @@ interface PropsFromState
 
 interface PropsFromDispatch
 {
-  setUserData: ( userData: UserData ) => Promise<void>;
-  clearUserData: () => Promise<void>;
+  setUserData: ( userData: UserData ) => void;
+  clearUserData: () => void;
 }
 
 interface State
@@ -233,7 +232,7 @@ class SettingsPage extends React.PureComponent<Props, State>
       return;
     }
 
-    await this.props.setUserData( userData );
+    this.props.setUserData( userData );
     window.setTimeout( () =>
     {
       this.setState( { userDataImportSnackbarOpen: true } );
@@ -274,7 +273,7 @@ export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
     userData: state.user
   } ),
   {
-    setUserData: thunkToAction( setUserData.action ),
-    clearUserData: thunkToAction( clearUserData.action )
+    setUserData,
+    clearUserData
   }
 )( withStyles( styles )( SettingsPage ) );
