@@ -1,5 +1,6 @@
 import React = require( 'react' );
 import { Provider } from 'react-redux';
+import { HashRouter } from 'react-router-dom';
 import { CssBaseline, MuiThemeProvider } from '@material-ui/core';
 
 import Main from './components/Main';
@@ -14,10 +15,12 @@ export default class App extends React.PureComponent
   {
     return (
       <Provider store={store}>
-        <MuiThemeProvider theme={theme}>
-          <CssBaseline />
-          <Main />
-        </MuiThemeProvider>
+        <HashRouter hashType="hashbang">
+          <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            <Main />
+          </MuiThemeProvider>
+        </HashRouter>
       </Provider>
     );
   }

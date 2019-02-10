@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Switch, Route, Redirect, Link, withRouter, RouteComponentProps } from 'react-router-dom';
 import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import classNames from 'classnames';
 import
@@ -108,21 +109,18 @@ const styles = ( theme: Theme ) => createStyles( {
   }
 } );
 
-const enum Page
+const enum PagePath
 {
-  Home,
-  Subscriptions,
-  Settings,
-
-  PageCount
+  Home = '/home',
+  Subscriptions = '/subscriptions',
+  Settings = '/settings'
 }
 
-const PAGES: { [ page in Page ]: React.ComponentType<{}> } = {
-  [ Page.Home ]: HomePage,
-  [ Page.Subscriptions ]: SubscriptionsPage,
-  [ Page.Settings ]: SettingsPage,
-  [ Page.PageCount ]: () => null
-};
+const PAGES: Array<{ path: PagePath, component: React.ComponentType<{}> }> = [
+  { path: PagePath.Home, component: HomePage },
+  { path: PagePath.Subscriptions, component: SubscriptionsPage },
+  { path: PagePath.Settings, component: SettingsPage },
+];
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (
   enabled ?
@@ -136,15 +134,14 @@ const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enab
 
 interface PageDrawerEntryProps
 {
-  page: Page;
+  path: PagePath;
   label: string;
   drawerOpen: boolean;
-  selectedPage: Page;
-  onClick: ( page: Page ) => void;
+  currentPathName: string;
   IconComponent: React.ComponentType<SvgIconProps>;
 }
 
-const PageDrawerEntry: React.SFC<PageDrawerEntryProps> = ( { page, label, drawerOpen, selectedPage, onClick, IconComponent } ) => (
+const PageDrawerEntry: React.SFC<PageDrawerEntryProps> = ( { path, label, drawerOpen, currentPathName, IconComponent } ) => (
   <HideableTooltip
     title={label}
     placement="right"
@@ -152,11 +149,11 @@ const PageDrawerEntry: React.SFC<PageDrawerEntryProps> = ( { page, label, drawer
   >
     <ListItem
       button={true}
-      selected={selectedPage === page}
-      onClick={() => onClick( page )}
+      selected={currentPathName === path}
+      component={( { innerRef, ...props } ) => <Link {...props} to={path} />}
     >
       <ListItemIcon>
-        <IconComponent color={( selectedPage === page ) ? 'secondary' : 'inherit'} />
+        <IconComponent color={( currentPathName === path ) ? 'secondary' : 'inherit'} />
       </ListItemIcon>
       <ListItemText primary={label} />
     </ListItem>
@@ -173,19 +170,19 @@ interface PropsFromDispatch
   retrieveYoutubeAuthToken: ( interactive: boolean ) => Promise<string>;
 }
 
+type OwnProps = RouteComponentProps;
+
 interface State
 {
   drawerOpen: boolean;
-  selectedPage: Page;
 }
 
-type Props = PropsFromState & PropsFromDispatch & WithStyles<typeof styles, true>;
+type Props = PropsFromState & PropsFromDispatch & OwnProps & WithStyles<typeof styles, true>;
 
 class Main extends React.PureComponent<Props, State>
 {
   public readonly state: State = {
-    drawerOpen: true,
-    selectedPage: 0 as Page,
+    drawerOpen: true
   };
 
   public async componentDidMount()
@@ -204,10 +201,7 @@ class Main extends React.PureComponent<Props, State>
   public render()
   {
     const { classes, theme, token } = this.props;
-    const { drawerOpen, selectedPage } = this.state;
-
-    const validSelectedPage = 0 <= selectedPage && selectedPage < Page.PageCount ? selectedPage : 0 as Page;
-    const SelectedPagedComponent = PAGES[ validSelectedPage ];
+    const { drawerOpen } = this.state;
 
     return (
       <div className={classes.root}>
@@ -261,28 +255,25 @@ class Main extends React.PureComponent<Props, State>
           <Divider />
           <List className={classes.drawerList}>
             <PageDrawerEntry
-              page={Page.Home}
+              path={PagePath.Home}
               label="Home"
               drawerOpen={drawerOpen}
-              selectedPage={validSelectedPage}
-              onClick={this.onPageSelected}
+              currentPathName={this.props.location.pathname}
               IconComponent={HomeIcon}
             />
             <PageDrawerEntry
-              page={Page.Subscriptions}
+              path={PagePath.Subscriptions}
               label="Subscriptions"
               drawerOpen={drawerOpen}
-              selectedPage={validSelectedPage}
-              onClick={this.onPageSelected}
+              currentPathName={this.props.location.pathname}
               IconComponent={SubscriptionsIcon}
             />
             <div className={classes.drawerGrow} />
             <PageDrawerEntry
-              page={Page.Settings}
+              path={PagePath.Settings}
               label="Settings"
               drawerOpen={drawerOpen}
-              selectedPage={validSelectedPage}
-              onClick={this.onPageSelected}
+              currentPathName={this.props.location.pathname}
               IconComponent={SettingsIcon}
             />
           </List>
@@ -290,7 +281,12 @@ class Main extends React.PureComponent<Props, State>
         <main className={classes.contentContainer}>
           <div className={classes.toolbarOffset} />
           <div className={classes.content}>
-            <SelectedPagedComponent />
+            <Switch>
+              {PAGES.map( ( { path, component } ) => (
+                <Route key={path} path={path} component={component} />
+              ) )}
+              <Redirect to={PagePath.Home} />
+            </Switch>
           </div>
         </main>
       </div>
@@ -319,18 +315,13 @@ class Main extends React.PureComponent<Props, State>
       console.error( 'Failed to retrieve Youtube token:', e );
     }
   }
-
-  private onPageSelected = ( page: Page ) =>
-  {
-    this.setState( { selectedPage: page } );
-  }
 }
 
-export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
+export default withRouter( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state ) => ( {
     token: state.youtubeApi.token
   } ),
   {
     retrieveYoutubeAuthToken: thunkToAction( retrieveYoutubeAuthToken.action )
   }
-)( withStyles( styles, { withTheme: true } )( Main ) );
+)( withStyles( styles, { withTheme: true } )( Main ) ) );
