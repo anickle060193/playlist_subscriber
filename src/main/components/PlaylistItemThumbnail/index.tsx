@@ -1,11 +1,12 @@
 import React = require( 'react' );
 import moment from 'moment';
 import classNames from 'classnames';
-import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton, Menu, MenuItem } from '@material-ui/core';
+import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton, MenuItem } from '@material-ui/core';
 import PlayCircleFilledRoundedIcon from '@material-ui/icons/PlayCircleFilledRounded';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import NoReferrerAnchor from '../NoReferrerAnchor';
+import SimpleMenu from '../SimpleMenu';
 
 import { YoutubePlaylistItem, getYoutubePlaylistItemThumbnail } from 'utils/youtube_api_types';
 
@@ -48,12 +49,12 @@ const styles = ( theme: Theme ) => createStyles( {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginTop: theme.spacing.unit,
   },
   detailsContent: {
     flex: 1,
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    paddingTop: theme.spacing.unit,
   },
   itemTitle: {
     fontSize: '0.875rem',
@@ -76,8 +77,8 @@ const styles = ( theme: Theme ) => createStyles( {
     fontWeight: theme.typography.fontWeightLight
   },
   menuButton: {
-    padding: 4,
-    margin: -4,
+    marginTop: theme.spacing.unit / 2,
+    padding: 0,
     opacity: 0,
     '$root:hover &': {
       background: 'none',
@@ -175,22 +176,14 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
             >
               <MoreVertIcon />
             </IconButton>
-            <Menu
+            <SimpleMenu
               anchorEl={menuAnchorEl}
               open={menuAnchorEl !== null}
               onClose={this.onMenuClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              getContentAnchorEl={null}
+              placement="bottom-end"
             >
               <MenuItem onClick={this.onHideClick}>Hide</MenuItem>
-            </Menu>
+            </SimpleMenu>
           </div>
         </div>
       );
