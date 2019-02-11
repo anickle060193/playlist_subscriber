@@ -29,11 +29,11 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import HomeIcon from '@material-ui/icons/Home';
 import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
-import SettingsIcon from '@material-ui/icons/Settings';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 
 import HomePage from 'main/components/HomePage';
 import SubscriptionsPage from 'main/components/SubscriptionsPage';
-import SettingsPage from 'main/components/SettingsPage';
+import AccountPage from 'main/components/AccountPage';
 
 import { retrieveYoutubeAuthToken } from 'store/reducers/youtubeApi';
 
@@ -113,13 +113,13 @@ const enum PagePath
 {
   Home = '/home',
   Subscriptions = '/subscriptions',
-  Settings = '/settings'
+  Account = '/account',
 }
 
 const PAGES: Array<{ path: PagePath, component: React.ComponentType<{}> }> = [
   { path: PagePath.Home, component: HomePage },
   { path: PagePath.Subscriptions, component: SubscriptionsPage },
-  { path: PagePath.Settings, component: SettingsPage },
+  { path: PagePath.Account, component: AccountPage },
 ];
 
 const HideableTooltip: React.SFC<TooltipProps & { enabled: boolean }> = ( { enabled, ...props } ) => (
@@ -270,11 +270,11 @@ class Main extends React.PureComponent<Props, State>
             />
             <div className={classes.drawerGrow} />
             <PageDrawerEntry
-              path={PagePath.Settings}
-              label="Settings"
+              path={PagePath.Account}
+              label="Account"
               drawerOpen={drawerOpen}
               currentPathName={this.props.location.pathname}
-              IconComponent={SettingsIcon}
+              IconComponent={AccountCircleIcon}
             />
           </List>
         </Drawer>

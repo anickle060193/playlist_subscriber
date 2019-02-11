@@ -20,6 +20,8 @@ import
 
 import { redTheme } from 'common/theme';
 
+import PlaylistSubscriptionsList from 'common/components/PlaylistSubscriptionsList';
+
 import { State as UserData, clearUserData, setUserData } from 'store/reducers/user';
 
 import { formatExportUserDataAsDatUrl, parseExportUserData } from 'utils/user_data';
@@ -30,8 +32,6 @@ const styles = ( theme: Theme ) => createStyles( {
     height: '100%',
     padding: theme.spacing.unit * 4,
     overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
     '& > *:not( :first-child )': {
       marginTop: theme.spacing.unit * 4
     }
@@ -88,6 +88,13 @@ class SettingsPage extends React.PureComponent<Props, State>
 
     return (
       <div className={classes.root}>
+
+        <div className={classes.group}>
+          <Typography variant="h5">Playlist Subscriptions</Typography>
+          <Divider />
+          <PlaylistSubscriptionsList />
+        </div>
+
         <div className={classes.group}>
           <Typography variant="h5">Export User Data</Typography>
           <Divider />
