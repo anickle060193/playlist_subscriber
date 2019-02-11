@@ -1,33 +1,22 @@
 import React = require( 'react' );
 import
 {
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   TextField,
   createStyles,
   Theme,
   withStyles,
   WithStyles,
-  Paper,
   InputAdornment,
   Typography,
-  Avatar,
-  ListItemAvatar,
   Tooltip
 } from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
-import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
+import withPlaylistSubscriptions, { WithPlaylistSubscriptionsProps } from 'common/hoc/withPlaylistSubscriptions';
 
-import NoReferrerAnchor from 'common/components/NoReferrerAnchor';
-
-import { getYoutubeAvatarThumbnail } from 'utils/youtube_api_types';
+import PlaylistSubscriptionsList from 'common/components/PlaylistSubscriptionsList';
 
 const styles = ( theme: Theme ) => createStyles( {
   root: {
@@ -49,21 +38,6 @@ const styles = ( theme: Theme ) => createStyles( {
     marginBottom: theme.spacing.unit / 2,
     padding: theme.spacing.unit
   },
-  list: {
-    maxHeight: 500,
-    overflow: 'auto'
-  },
-  listItemText: {
-    textOverflow: 'ellipsis',
-    overflow: 'hidden',
-    whiteSpace: 'normal',
-    lineClamp: 2
-  },
-  removeButton: {
-    '&:hover': {
-      color: theme.palette.secondary.main
-    }
-  },
   form: {
     marginTop: theme.spacing.unit * 2
   }
@@ -74,7 +48,7 @@ function isTextEmpty( text: string | null | undefined )
   return !text || /^\s*$/.test( text );
 }
 
-type Props = WithPlaylistsProps & WithStyles<typeof styles>;
+type Props = WithPlaylistSubscriptionsProps & WithStyles<typeof styles>;
 
 interface State
 {
@@ -94,7 +68,7 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
 
   public render()
   {
-    const { classes, playlistSubscriptions } = this.props;
+    const { classes } = this.props;
     const { playlistIdValue } = this.state;
 
     return (
@@ -112,74 +86,9 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
             </IconButton>
           </Tooltip>
         </div>
-        <Paper>
-          <List className={classes.list}>
-            {( playlistSubscriptions.length === 0 ) ?
-              (
-                <ListItem>
-                  <ListItemText primary="No playlist subscriptions" />
-                </ListItem>
-              ) :
-              (
-                playlistSubscriptions.map( ( playlistId ) =>
-                {
-                  let playlist = this.props.youtubePlaylists.items[ playlistId ];
 
-                  let text = playlistId;
-                  let thumbnail = (
-                    <Avatar>
-                      <PlayArrowIcon />
-                    </Avatar>
-                  );
+        <PlaylistSubscriptionsList />
 
-                  if( playlist )
-                  {
-                    text = playlist.snippet.title;
-
-                    let avatarThumbnail = getYoutubeAvatarThumbnail( playlist.snippet.thumbnails );
-                    if( avatarThumbnail )
-                    {
-                      thumbnail = (
-                        <Avatar
-                          alt={text}
-                          src={avatarThumbnail.url}
-                        />
-                      );
-                    }
-                  }
-
-                  return (
-                    <ListItem
-                      key={playlistId}
-                      button={true}
-                      component={NoReferrerAnchor}
-                      href={`https://www.youtube.com/playlist?list=${playlistId}`}
-                    >
-                      <ListItemAvatar>
-                        {thumbnail}
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={text}
-                        classes={{
-                          primary: classes.listItemText
-                        }}
-                      />
-                      <ListItemSecondaryAction>
-                        <Tooltip title="Remove" placement="left" enterDelay={500}>
-                          <IconButton
-                            className={classes.removeButton}
-                            onClick={() => this.onRemovePlaylist( playlistId )}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  );
-                } )
-              )}
-          </List>
-        </Paper>
         <form
           className={classes.form}
           onSubmit={this.onAddPlaylistSubmit}
@@ -252,33 +161,26 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
   {
     e.preventDefault();
 
-    if( isTextEmpty( this.state.playlistIdValue ) )
+    const playlistId = this.state.playlistIdValue.trim();
+
+    if( isTextEmpty( playlistId ) )
     {
       return;
     }
 
-    console.log( 'Add playlist subscription:', this.state.playlistIdValue );
-
-    let index = this.props.playlistSubscriptions.indexOf( this.state.playlistIdValue );
-    if( index !== -1 )
+    let index = this.props.playlistSubscriptions.indexOf( playlistId );
+    if( index === -1 )
     {
-      let playlistSubscriptions = [ ...this.props.playlistSubscriptions ];
-      playlistSubscriptions.splice( index, 1 );
-
-      this.props.setPlaylistSubscriptions( playlistSubscriptions );
+      console.log( 'Add playlist subscription:', playlistId );
+      this.props.setPlaylistSubscriptions( [ ...this.props.playlistSubscriptions, playlistId ] );
+    }
+    else
+    {
+      console.log( 'Already subscribed to playlist:', playlistId );
     }
 
     this.setState( { playlistIdValue: '' } );
   }
-
-  private onRemovePlaylist = ( playlistId: string ) =>
-  {
-    console.log( 'Remove playlist subscription:', playlistId );
-
-    let playlistSubscriptions = this.props.playlistSubscriptions.filter( ( id ) => id !== playlistId );
-
-    this.props.setPlaylistSubscriptions( playlistSubscriptions );
-  }
 }
 
-export default withPlaylists( withStyles( styles )( BrowserActionPopup ) );
+export default withPlaylistSubscriptions( withStyles( styles )( BrowserActionPopup ) );
