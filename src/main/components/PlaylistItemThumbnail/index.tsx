@@ -96,6 +96,7 @@ interface Props extends WithStyles<typeof styles>
 {
   playlistItem: YoutubePlaylistItem | null | undefined;
   showChannelTitle?: boolean;
+  hidePlaylistItem: ( playlistItemId: string ) => void;
 }
 
 interface State
@@ -105,7 +106,7 @@ interface State
 
 class PlaylistItemThumbnail extends React.PureComponent<Props, State>
 {
-  public static defaultProps: Partial<Props> = {
+  public static defaultProps = {
     showChannelTitle: false
   };
 
@@ -188,7 +189,7 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
               }}
               getContentAnchorEl={null}
             >
-              <MenuItem>Hide</MenuItem>
+              <MenuItem onClick={this.onHideClick}>Hide</MenuItem>
             </Menu>
           </div>
         </div>
@@ -215,6 +216,16 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
   private onMenuClose = () =>
   {
     this.setState( { menuAnchorEl: null } );
+  }
+
+  private onHideClick = () =>
+  {
+    if( this.props.playlistItem )
+    {
+      this.props.hidePlaylistItem( this.props.playlistItem.id );
+    }
+
+    this.onMenuClose();
   }
 }
 

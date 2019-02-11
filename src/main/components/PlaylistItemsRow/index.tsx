@@ -51,6 +51,7 @@ interface Props extends WithStyles<typeof styles>
   playlistId: string;
   playlistVisibleItemCount: number;
   showMorePlaylistItems: ( playlistId: string ) => void;
+  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
   playlist: YoutubePlaylist | null | undefined;
   playlistLoading: boolean | undefined;
   playlistError: Error | null | undefined;
@@ -67,11 +68,14 @@ class PlaylistItemsRow extends React.PureComponent<Props>
       classes,
       playlistId,
       playlistVisibleItemCount,
+      hiddenPlaylistItems,
       playlist, playlistError,
       playlistItems, playlistItemsError
     } = this.props;
 
-    let items = playlistItems && [ ...playlistItems ].sort( compareYoutubePlaylistItems );
+    let items = playlistItems && [ ...playlistItems ]
+      .sort( compareYoutubePlaylistItems )
+      .filter( ( playlistItem ) => !hiddenPlaylistItems[ playlistItem.id ] );
 
     let error = playlistError && playlistError.message || playlistItemsError && playlistItemsError.message;
 

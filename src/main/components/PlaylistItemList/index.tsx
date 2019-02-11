@@ -1,10 +1,14 @@
 import React = require( 'react' );
-import { Theme, createStyles, WithStyles, withStyles } from '@material-ui/core';
+import { connect } from 'react-redux';
+import classNames from 'classnames';
+import { Theme, createStyles, WithStyles, withStyles, Snackbar, Button, IconButton } from '@material-ui/core';
+import CloseIcon from '@material-ui/icons/Close';
 
 import PlaylistItemThumbnail from '../PlaylistItemThumbnail';
 
+import { setPlaylistItemHidden } from 'store/reducers/user';
+
 import { YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
-import classNames from 'classnames';
 
 const styles = ( theme: Theme ) => createStyles( {
   playlistItem: {
@@ -14,21 +18,40 @@ const styles = ( theme: Theme ) => createStyles( {
   },
   rowMargin: {
     marginBottom: theme.spacing.unit * 2
+  },
+  closeButton: {
+    padding: theme.spacing.unit / 2,
   }
 } );
 
-interface Props extends WithStyles<typeof styles>
+interface PropsFromDispatch
+{
+  setPlaylistItemHidden: ( params: { playlistItemId: string, hidden: boolean } ) => void;
+}
+
+interface OwnProps
 {
   playlistItems: YoutubePlaylistItem[];
   rowMargin?: boolean;
   showChannelTitle?: boolean;
 }
 
-class PlaylistItemsRow extends React.PureComponent<Props>
+type Props = PropsFromDispatch & OwnProps & WithStyles<typeof styles>;
+
+interface State
 {
-  public static defaultProps: Partial<Props> = {
+  lastHiddenPlaylistId: string | null;
+}
+
+class PlaylistItemsRow extends React.PureComponent<Props, State>
+{
+  public static defaultProps = {
     rowMargin: false,
     showChannelTitle: false
+  };
+
+  public readonly state: State = {
+    lastHiddenPlaylistId: null
   };
 
   public render()
@@ -38,22 +61,89 @@ class PlaylistItemsRow extends React.PureComponent<Props>
     let items = [ ...playlistItems ].sort( compareYoutubePlaylistItems );
 
     return (
-      items.map( ( playlistItem ) => (
-        <div
-          key={`${playlistItem.snippet.playlistId}_${playlistItem.id}`}
-          className={classNames( {
-            [ classes.playlistItem ]: true,
-            [ classes.rowMargin ]: rowMargin
-          } )}
-        >
-          <PlaylistItemThumbnail
-            playlistItem={playlistItem}
-            showChannelTitle={showChannelTitle}
-          />
-        </div>
-      ) )
+      <>
+        {items.map( ( playlistItem ) => (
+          <div
+            key={`${playlistItem.snippet.playlistId}_${playlistItem.id}`}
+            className={classNames( {
+              [ classes.playlistItem ]: true,
+              [ classes.rowMargin ]: rowMargin
+            } )}
+          >
+            <PlaylistItemThumbnail
+              playlistItem={playlistItem}
+              showChannelTitle={showChannelTitle}
+              hidePlaylistItem={this.onHidePlaylistItem}
+            />
+          </div>
+        ) )}
+        <Snackbar
+          open={this.state.lastHiddenPlaylistId !== null}
+          onClose={this.onPlaylistItemHiddenSnackbarClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center'
+          }}
+          autoHideDuration={6000}
+          message="Playlist item hidden"
+          action={(
+            <>
+              <Button
+                color="secondary"
+                size="small"
+                onClick={this.onUndoHidePlaylistItem}
+              >
+                Undo
+              </Button>
+              <IconButton
+                onClick={this.onPlaylistItemHiddenSnackbarClose}
+                color="inherit"
+                className={classes.closeButton}
+              >
+                <CloseIcon />
+              </IconButton>
+            </>
+          )}
+        />
+      </>
     );
+  }
+
+  private onHidePlaylistItem = ( playlistItemId: string ) =>
+  {
+    this.props.setPlaylistItemHidden( {
+      playlistItemId: playlistItemId,
+      hidden: true
+    } );
+    this.setState( { lastHiddenPlaylistId: playlistItemId } );
+  }
+
+  private onUndoHidePlaylistItem = () =>
+  {
+    if( this.state.lastHiddenPlaylistId )
+    {
+      this.props.setPlaylistItemHidden( {
+        playlistItemId: this.state.lastHiddenPlaylistId,
+        hidden: false
+      } );
+      this.setState( { lastHiddenPlaylistId: null } );
+    }
+  }
+
+  private onPlaylistItemHiddenSnackbarClose = ( e?: React.SyntheticEvent, reason?: string ) =>
+  {
+    if( reason && reason === 'clickaway' )
+    {
+      return;
+    }
+
+    this.setState( { lastHiddenPlaylistId: null } );
   }
 }
 
-export default withStyles( styles )( PlaylistItemsRow );
+export default connect<{}, PropsFromDispatch, OwnProps, RootState>(
+  null,
+  {
+    setPlaylistItemHidden
+  }
+)( withStyles( styles )( PlaylistItemsRow ) );

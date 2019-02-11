@@ -23,6 +23,7 @@ const styles = ( theme: Theme ) => createStyles( {
 interface PropsFromState
 {
   homeVisibleItemCount: number;
+  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
 }
 
 interface PropsFromDispatch
@@ -68,7 +69,8 @@ class HomePage extends React.PureComponent<Props>
       .filter<YoutubePlaylistItem[]>( ( playlistItems ): playlistItems is YoutubePlaylistItem[] => Array.isArray( playlistItems ) );
 
     return new Array<YoutubePlaylistItem>()
-      .concat( ...playlistItemsList );
+      .concat( ...playlistItemsList )
+      .filter( ( playlistItem ) => !this.props.hiddenPlaylistItems[ playlistItem.id ] );
   }
 
   private onScroll = ( e: React.UIEvent<HTMLElement> ) =>
@@ -83,9 +85,10 @@ class HomePage extends React.PureComponent<Props>
 
 export default withPlaylists( withStyles( styles )( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state ) => ( {
-    homeVisibleItemCount: state.ui.main.homeVisibleItemCount
+    homeVisibleItemCount: state.ui.main.homeVisibleItemCount,
+    hiddenPlaylistItems: state.user.hiddenPlaylistItems,
   } ),
   {
-    showMoreHomeItems
+    showMoreHomeItems,
   }
 )( HomePage ) ), true );

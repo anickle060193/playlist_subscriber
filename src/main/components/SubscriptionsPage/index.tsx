@@ -28,6 +28,7 @@ const styles = ( theme: Theme ) => createStyles( {
 interface PropsFromState
 {
   playlistsVisibleItemCount: { [ playlistId: string ]: number | undefined };
+  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
 }
 
 interface PropsFromDispatch
@@ -53,6 +54,7 @@ class SubscriptionsPage extends React.PureComponent<Props>
               playlistId={playlistId}
               playlistVisibleItemCount={this.props.playlistsVisibleItemCount[ playlistId ] || DEFAULT_PLAYLIST_VISIBLE_ITEM_COUNT}
               showMorePlaylistItems={this.props.showMorePlaylistItems}
+              hiddenPlaylistItems={this.props.hiddenPlaylistItems}
               playlist={this.props.youtubePlaylists.items[ playlistId ]}
               playlistLoading={this.props.youtubePlaylists.loading[ playlistId ]}
               playlistError={this.props.youtubePlaylists.errors[ playlistId ]}
@@ -69,9 +71,10 @@ class SubscriptionsPage extends React.PureComponent<Props>
 
 export default withPlaylists( withStyles( styles )( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state ) => ( {
-    playlistsVisibleItemCount: state.ui.main.playlistsVisibleItemCount
+    playlistsVisibleItemCount: state.ui.main.playlistsVisibleItemCount,
+    hiddenPlaylistItems: state.user.hiddenPlaylistItems,
   } ),
   {
-    showMorePlaylistItems: showMorePlaylistItems
+    showMorePlaylistItems,
   }
 )( SubscriptionsPage ) ), true );
