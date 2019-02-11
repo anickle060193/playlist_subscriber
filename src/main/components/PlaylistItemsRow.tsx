@@ -3,8 +3,9 @@ import classNames from 'classnames';
 import { Theme, createStyles, WithStyles, withStyles, Typography, Fab, Tooltip } from '@material-ui/core';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 
-import NoReferrerAnchor from '../NoReferrerAnchor';
-import PlaylistItemList from '../PlaylistItemList';
+import NoReferrerAnchor from 'common/components/NoReferrerAnchor';
+
+import PlaylistItemList from 'main/components/PlaylistItemList';
 
 import { YoutubePlaylist, YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
 

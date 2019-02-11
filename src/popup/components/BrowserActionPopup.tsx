@@ -25,6 +25,8 @@ import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
 
+import NoReferrerAnchor from 'common/components/NoReferrerAnchor';
+
 import { getYoutubeAvatarThumbnail } from 'utils/youtube_api_types';
 
 const styles = ( theme: Theme ) => createStyles( {
@@ -150,9 +152,7 @@ class BrowserActionPopup extends React.PureComponent<Props, State>
                     <ListItem
                       key={playlistId}
                       button={true}
-                      component="a"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      component={NoReferrerAnchor}
                       href={`https://www.youtube.com/playlist?list=${playlistId}`}
                     >
                       <ListItemAvatar>

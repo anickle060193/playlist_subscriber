@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Theme, createStyles, WithStyles, withStyles, Snackbar, Button, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-import PlaylistItemThumbnail from '../PlaylistItemThumbnail';
+import PlaylistItemThumbnail from 'main/components/PlaylistItemThumbnail';
 
 import { setPlaylistItemHidden } from 'store/reducers/user';
 

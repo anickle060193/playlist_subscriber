@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { CssBaseline, MuiThemeProvider } from '@material-ui/core';
 
-import BrowserActionPopup from './BrowserActionPopup';
+import BrowserActionPopup from 'popup/components/BrowserActionPopup';
 
 import { store, persistor } from 'store';
 

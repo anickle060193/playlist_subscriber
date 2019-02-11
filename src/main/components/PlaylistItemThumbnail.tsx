@@ -5,8 +5,8 @@ import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton, Me
 import PlayCircleFilledRoundedIcon from '@material-ui/icons/PlayCircleFilledRounded';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 
-import NoReferrerAnchor from '../NoReferrerAnchor';
-import SimpleMenu from '../SimpleMenu';
+import NoReferrerAnchor from 'common/components/NoReferrerAnchor';
+import SimpleMenu from 'common/components/SimpleMenu';
 
 import { YoutubePlaylistItem, getYoutubePlaylistItemThumbnail } from 'utils/youtube_api_types';
 

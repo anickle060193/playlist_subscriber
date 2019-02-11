@@ -4,7 +4,7 @@ import { Theme, createStyles, withStyles, WithStyles } from '@material-ui/core';
 
 import withPlaylists, { WithPlaylistsProps } from 'common/hoc/withPlaylists';
 
-import PlaylistItemsRow from '../PlaylistItemsRow';
+import PlaylistItemsRow from 'main/components/PlaylistItemsRow';
 
 import { showMorePlaylistItems, DEFAULT_PLAYLIST_VISIBLE_ITEM_COUNT } from 'store/reducers/ui/main';
 
