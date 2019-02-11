@@ -26,9 +26,9 @@ interface OwnProps extends WithPlaylistSubscriptionsProps { }
 
 export interface WithPlaylistsProps extends PropsFromState, PropsFromDispatch, OwnProps { }
 
-export default function withPlaylists( WrappedComponent: React.ComponentType<WithPlaylistsProps>, includePlaylistItems: boolean = false ): React.ComponentType<{}>
+export default function withPlaylists<P = {}>( WrappedComponent: React.ComponentType<WithPlaylistsProps & P>, includePlaylistItems: boolean = false ): React.ComponentType<P>
 {
-  class WithPlaylistsComponent extends React.PureComponent<WithPlaylistsProps>
+  class WithPlaylistsComponent extends React.PureComponent<WithPlaylistsProps & P>
   {
     public componentDidMount()
     {
@@ -99,7 +99,7 @@ export default function withPlaylists( WrappedComponent: React.ComponentType<Wit
     }
   }
 
-  return withPlaylistSubscriptions( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
+  return withPlaylistSubscriptions<P>( connect<PropsFromState, PropsFromDispatch, OwnProps & P, RootState>(
     ( state ) => ( {
       youtubePlaylists: state.youtubeApi.playlists,
       youtubePlaylistItems: state.youtubeApi.playlistItems
@@ -108,5 +108,6 @@ export default function withPlaylists( WrappedComponent: React.ComponentType<Wit
       retrieveYoutubePlaylists: thunkToAction( retrieveYoutubePlaylists.action ),
       retrieveYoutubePlaylistItems: thunkToAction( retrieveYoutubePlaylistItems.action ),
     }
+    // @ts-ignore
   )( WithPlaylistsComponent ) );
 }

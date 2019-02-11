@@ -15,9 +15,9 @@ interface PropsFromDispatch
 
 export interface WithPlaylistSubscriptionsProps extends PropsFromState, PropsFromDispatch { }
 
-export default function withPlaylistSubscriptions( WrappedComponent: React.ComponentType<WithPlaylistSubscriptionsProps> ): React.ComponentType<{}>
+export default function withPlaylistSubscriptions<P = {}>( WrappedComponent: React.ComponentType<WithPlaylistSubscriptionsProps & P> ): React.ComponentType<P>
 {
-  class WithPlaylistsComponent extends React.PureComponent<WithPlaylistSubscriptionsProps>
+  class WithPlaylistsComponent extends React.PureComponent<WithPlaylistSubscriptionsProps & P>
   {
     public render()
     {
@@ -27,12 +27,13 @@ export default function withPlaylistSubscriptions( WrappedComponent: React.Compo
     }
   }
 
-  return connect<PropsFromState, PropsFromDispatch, {}, RootState>(
+  return connect<PropsFromState, PropsFromDispatch, P, RootState>(
     ( state ) => ( {
       playlistSubscriptions: state.user.playlistSubscriptions
     } ),
     {
       setPlaylistSubscriptions
     }
+    // @ts-ignore
   )( WithPlaylistsComponent );
 }
