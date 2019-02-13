@@ -6,7 +6,7 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import PlaylistItemThumbnail from 'main/components/PlaylistItemThumbnail';
 
-import { setPlaylistItemHidden } from 'store/reducers/user';
+import { hidePlaylistItem, unhidePlaylistItem } from 'store/reducers/user';
 
 import { YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
 
@@ -26,7 +26,8 @@ const styles = ( theme: Theme ) => createStyles( {
 
 interface PropsFromDispatch
 {
-  setPlaylistItemHidden: ( params: { playlistItemId: string, hidden: boolean } ) => void;
+  hidePlaylistItem: ( playlistItemId: string ) => void;
+  unhidePlaylistItem: ( playlistItemId: string ) => void;
 }
 
 interface OwnProps
@@ -111,10 +112,7 @@ class PlaylistItemsRow extends React.PureComponent<Props, State>
 
   private onHidePlaylistItem = ( playlistItemId: string ) =>
   {
-    this.props.setPlaylistItemHidden( {
-      playlistItemId: playlistItemId,
-      hidden: true
-    } );
+    this.props.hidePlaylistItem( playlistItemId );
     this.setState( { lastHiddenPlaylistId: playlistItemId } );
   }
 
@@ -122,10 +120,7 @@ class PlaylistItemsRow extends React.PureComponent<Props, State>
   {
     if( this.state.lastHiddenPlaylistId )
     {
-      this.props.setPlaylistItemHidden( {
-        playlistItemId: this.state.lastHiddenPlaylistId,
-        hidden: false
-      } );
+      this.props.unhidePlaylistItem( this.state.lastHiddenPlaylistId );
       this.setState( { lastHiddenPlaylistId: null } );
     }
   }
@@ -144,6 +139,7 @@ class PlaylistItemsRow extends React.PureComponent<Props, State>
 export default connect<{}, PropsFromDispatch, OwnProps, RootState>(
   null,
   {
-    setPlaylistItemHidden
+    hidePlaylistItem,
+    unhidePlaylistItem
   }
 )( withStyles( styles )( PlaylistItemsRow ) );

@@ -20,6 +20,10 @@ export const MIGRATIONS: { [ version in Version ]: ( userData: UserPersistedStat
     ...state,
     user: MIGRATORS[ Version.V2 ]( state.user )
   } ),
+  [ Version.V3 ]: ( state ) => ( {
+    ...state,
+    user: MIGRATORS[ Version.V3 ]( state.user )
+  } ),
 };
 
 export const migrate = createMigrate( MIGRATIONS as unknown as MigrationManifest, { debug: process.env.NODE_ENV === 'development' } );

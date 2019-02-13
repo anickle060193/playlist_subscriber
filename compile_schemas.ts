@@ -29,8 +29,15 @@ for( let schema of schemas )
   console.log( 'Compiling schema:', name );
 
   const validatorFilename = path.resolve( validatorsDir, name + '.js' );
-  const command = `yarn run ajv compile -s "${schema}" -r ./schemas/*.json -o "${validatorFilename}" --all-errors --verbose`;
-  const { stdout, stderr, error } = child_process.spawnSync( command, { shell: true, encoding: 'utf8' } );
+  const command = [
+    'yarn run ajv compile',
+    '-s', `"${schema}"`,
+    '-r', './schemas/*.json',
+    '-o', `"${validatorFilename}"`,
+    '-c', '"./schemas/ajv/keywords.js"',
+    '--all-errors', '--verbose',
+  ];
+  const { stdout, stderr, error } = child_process.spawnSync( command.join( ' ' ), { shell: true, encoding: 'utf8' } );
   if( stdout )
   {
     console.log( stdout );

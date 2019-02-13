@@ -4,12 +4,12 @@ import { reducerWithInitialState } from 'typescript-fsa-reducers';
 export interface State
 {
   playlistSubscriptions: string[];
-  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
+  hiddenPlaylistItems: Set<string>;
 }
 
 export const initialState: State = {
   playlistSubscriptions: [],
-  hiddenPlaylistItems: {},
+  hiddenPlaylistItems: new Set<string>(),
 };
 
 const createAction = actionCreatorFactory();
@@ -17,7 +17,8 @@ const createAction = actionCreatorFactory();
 export const clearUserData = createAction( 'CLEAR_USER_DATA' );
 export const setUserData = createAction<State>( 'SET_USER_DATA' );
 export const setPlaylistSubscriptions = createAction<string[]>( 'SET_PLAYLIST_SUBSCRIPTIONS' );
-export const setPlaylistItemHidden = createAction<{ playlistItemId: string, hidden: boolean }>( 'SET_PLAYLIST_ITEM_HIDDEN' );
+export const hidePlaylistItem = createAction<string>( 'HIDE_PLAYLIST_ITEM' );
+export const unhidePlaylistItem = createAction<string>( 'UNHIDE_PLAYLIST_ITEM' );
 
 export const reducer = reducerWithInitialState( initialState )
   .case( clearUserData, ( state ) => ( {
@@ -31,10 +32,21 @@ export const reducer = reducerWithInitialState( initialState )
     ...state,
     playlistSubscriptions: subscriptions
   } ) )
-  .case( setPlaylistItemHidden, ( state, { playlistItemId, hidden } ) => ( {
-    ...state,
-    hiddenPlaylistItems: {
-      ...state.hiddenPlaylistItems,
-      [ playlistItemId ]: hidden
-    }
-  } ) );
+  .case( hidePlaylistItem, ( state, playlistItemId ) =>
+  {
+    let hiddenPlaylistItems = new Set( state.hiddenPlaylistItems );
+    hiddenPlaylistItems.add( playlistItemId );
+    return {
+      ...state,
+      hiddenPlaylistItems: hiddenPlaylistItems
+    };
+  } )
+  .case( unhidePlaylistItem, ( state, playlistItemId ) =>
+  {
+    let hiddenPlaylistItems = new Set( state.hiddenPlaylistItems );
+    hiddenPlaylistItems.delete( playlistItemId );
+    return {
+      ...state,
+      hiddenPlaylistItems: hiddenPlaylistItems
+    };
+  } );

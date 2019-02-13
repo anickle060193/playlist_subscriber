@@ -28,7 +28,7 @@ const styles = ( theme: Theme ) => createStyles( {
 interface PropsFromState
 {
   playlistsVisibleItemCount: { [ playlistId: string ]: number | undefined };
-  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
+  hiddenPlaylistItems: Set<string>;
 }
 
 interface PropsFromDispatch

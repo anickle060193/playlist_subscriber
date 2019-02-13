@@ -13,7 +13,7 @@
       "type": "object"
     }
   },
-  "oneOf": [
+  "anyOf": [
     {
       "properties": {
         "version": {
@@ -31,6 +31,16 @@
         },
         "data": {
           "$ref": "exported_user_data_v2"
+        }
+      }
+    },
+    {
+      "properties": {
+        "version": {
+          "const": 3
+        },
+        "data": {
+          "$ref": "exported_user_data_v3"
         }
       }
     }

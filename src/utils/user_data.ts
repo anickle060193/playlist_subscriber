@@ -1,4 +1,4 @@
-import { State as UserState, initialState as initialUserState } from 'store/reducers/user';
+import { State as UserState } from 'store/reducers/user';
 
 import { jsonParseReviver, jsonStringifyReplacer } from 'utils/transformer';
 import { validateExportedUserData } from 'utils/validation';
@@ -8,8 +8,9 @@ export const enum Version
   V0 = 0,
   V1 = 1,
   V2 = 2,
+  V3 = 3,
 
-  CurrentVersion = V2
+  CurrentVersion = V3
 }
 
 export interface PreviousVersions
@@ -17,19 +18,34 @@ export interface PreviousVersions
   [ Version.V0 ]: Version.V0;
   [ Version.V1 ]: Version.V0;
   [ Version.V2 ]: Version.V1;
+  [ Version.V3 ]: Version.V2;
 }
+
+type UserDataV0 = {} | null;
 
 interface UserDataV1
 {
   playlistSubscriptions: string[];
 }
 
+interface UserDataV2
+{
+  playlistSubscriptions: string[];
+  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
+}
+
+interface UserDataV3
+{
+  playlistSubscriptions: string[];
+  hiddenPlaylistItems: Set<string>;
+}
+
 export interface UserDataTypes
 {
-  [ Version.V0 ]: {} | null;
+  [ Version.V0 ]: UserDataV0;
   [ Version.V1 ]: UserDataV1;
-
-  [ Version.CurrentVersion ]: UserState;
+  [ Version.V2 ]: UserDataV2;
+  [ Version.V3 ]: UserDataV3;
 }
 
 export interface UserData<V extends Version>
@@ -39,9 +55,9 @@ export interface UserData<V extends Version>
 }
 
 export type ExportedUserData = (
-  UserData<Version.CurrentVersion> |
   UserData<Version.V1> |
-  UserData<Version.V2>
+  UserData<Version.V2> |
+  UserData<Version.V3>
 );
 
 export function formatExportUserDataAsDatUrl( state: UserState )
@@ -64,16 +80,7 @@ export function parseExportUserData( dataText: string ): UserState | null
 
     let exportedUserData = validateExportedUserData( data );
 
-    return Object
-      .entries( MIGRATORS )
-      .filter( ( [ version, migrator ] ) => (
-        ( version as unknown as Version ) > exportedUserData.version
-      ) )
-      .reduce(
-        // tslint:disable-next-line:no-any
-        ( userData, [ version, migrator ] ) => ( migrator( userData as any ) as any ),
-        exportedUserData.data
-      ) as UserState;
+    return migrateExportedUserData( exportedUserData );
   }
   catch( e )
   {
@@ -86,7 +93,22 @@ export const MIGRATORS: { [ version in Version ]: ( userData: UserDataTypes[ Pre
   [ Version.V0 ]: migrateUserDataV0toV0,
   [ Version.V1 ]: migrateUserDataV0toV1,
   [ Version.V2 ]: migrateUserDataV1toV2,
+  [ Version.V3 ]: migrateUserDataV2toV3,
 };
+
+function migrateExportedUserData( exportedUserData: ExportedUserData ): UserDataTypes[ Version.CurrentVersion ]
+{
+  return Object
+    .entries( MIGRATORS )
+    .filter( ( [ version, migrator ] ) => (
+      ( version as unknown as Version ) > exportedUserData.version
+    ) )
+    .reduce(
+      // tslint:disable-next-line:no-any
+      ( userData, [ version, migrator ] ) => ( migrator( userData as any ) as any ),
+      exportedUserData.data
+    ) as UserDataTypes[ Version.CurrentVersion ];
+}
 
 export function migrateUserDataV0toV0( userData: UserDataTypes[ Version.V0 ] ): UserDataTypes[ Version.V0 ]
 {
@@ -100,7 +122,7 @@ export function migrateUserDataV0toV1( userData: UserDataTypes[ Version.V0 ] ): 
   console.log( 'Migration V0 -> V1:', userData );
 
   return {
-    playlistSubscriptions: initialUserState.playlistSubscriptions
+    playlistSubscriptions: []
   };
 }
 
@@ -109,7 +131,21 @@ export function migrateUserDataV1toV2( userData: UserDataTypes[ Version.V1 ] ): 
   console.log( 'Migration V1 -> V2:', userData );
 
   return {
-    ...userData,
-    hiddenPlaylistItems: initialUserState.hiddenPlaylistItems
+    playlistSubscriptions: userData.playlistSubscriptions,
+    hiddenPlaylistItems: {}
+  };
+}
+
+export function migrateUserDataV2toV3( userData: UserDataTypes[ Version.V2 ] ): UserDataTypes[ Version.V3 ]
+{
+  console.log( 'Migration V2 -> V3:', userData );
+
+  let hiddenPlaylistItems = Object.entries( userData.hiddenPlaylistItems )
+    .filter( ( [ playlistItemId, hidden ] ) => hidden )
+    .map( ( [ playlistItemId, hidden ] ) => playlistItemId );
+
+  return {
+    playlistSubscriptions: userData.playlistSubscriptions,
+    hiddenPlaylistItems: new Set( hiddenPlaylistItems )
   };
 }
