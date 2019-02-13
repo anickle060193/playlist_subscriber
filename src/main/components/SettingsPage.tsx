@@ -15,16 +15,17 @@ import
   MuiThemeProvider,
   Typography,
   Divider,
-  Snackbar
+  Snackbar,
+  FormGroup,
+  FormControlLabel,
+  Checkbox
 } from '@material-ui/core';
 
-import { redTheme } from 'common/theme';
-
-import PlaylistSubscriptionsList from 'common/components/PlaylistSubscriptionsList';
+import { lightRedTheme, darkRedTheme } from 'common/theme';
 
 import { State as StoredData } from 'store/reducers/stored';
 import { State as UserData, clearUserData, setUserData } from 'store/reducers/stored/user';
-import { State as SettingsData, clearSettingsData, setSettingsData } from 'store/reducers/stored/settings';
+import { State as SettingsData, clearSettingsData, setSettingsData, setUseDarkTheme } from 'store/reducers/stored/settings';
 
 import { formatExportStoredDataAsDatUrl, parseExportStoredData } from 'utils/stored_data';
 import { readFile } from 'utils/file';
@@ -53,10 +54,12 @@ const styles = ( theme: Theme ) => createStyles( {
 interface PropsFromState
 {
   storedData: StoredData;
+  useDarkTheme: boolean;
 }
 
 interface PropsFromDispatch
 {
+  setUseDarkTheme: ( useDarkTheme: boolean ) => void;
   setUserData: ( userData: UserData ) => void;
   clearUserData: () => void;
   setSettingsData: ( settingsData: SettingsData ) => void;
@@ -84,7 +87,7 @@ class SettingsPage extends React.PureComponent<Props, State>
 
   public render()
   {
-    const { classes, storedData: userData } = this.props;
+    const { classes, storedData, useDarkTheme } = this.props;
     const {
       userDataImportSnackbarOpen, userDataImportDialogOpen, userDataImportResult,
       clearDataDialogOpen
@@ -94,9 +97,19 @@ class SettingsPage extends React.PureComponent<Props, State>
       <div className={classes.root}>
 
         <div className={classes.group}>
-          <Typography variant="h5">Playlist Subscriptions</Typography>
+          <Typography variant="h5">Settings</Typography>
           <Divider />
-          <PlaylistSubscriptionsList />
+          <FormGroup row={true}>
+            <FormControlLabel
+              control={(
+                <Checkbox
+                  checked={useDarkTheme}
+                  onChange={this.onUseDarkThemeChange}
+                />
+              )}
+              label="Use Dark Theme"
+            />
+          </FormGroup>
         </div>
 
         <div className={classes.group}>
@@ -105,7 +118,7 @@ class SettingsPage extends React.PureComponent<Props, State>
           <Typography>Export your user data to easily transfer data.</Typography>
           <div>
             <Button
-              href={formatExportStoredDataAsDatUrl( userData )}
+              href={formatExportStoredDataAsDatUrl( storedData )}
               download="user_data.json"
               variant="outlined"
               color="primary"
@@ -166,7 +179,7 @@ class SettingsPage extends React.PureComponent<Props, State>
         </div>
 
         <div className={classes.group}>
-          <MuiThemeProvider theme={redTheme}>
+          <MuiThemeProvider theme={useDarkTheme ? darkRedTheme : lightRedTheme}>
             <Typography variant="h5" color="secondary">Clear User Data</Typography>
             <Divider />
             <Typography>Once you clear your user data, there is no recovering it.</Typography>
@@ -203,6 +216,11 @@ class SettingsPage extends React.PureComponent<Props, State>
 
       </div>
     );
+  }
+
+  private onUseDarkThemeChange = ( e: React.ChangeEvent<HTMLInputElement> ) =>
+  {
+    this.props.setUseDarkTheme( e.target.checked );
   }
 
   private onImportUserDataFileChange = async ( e: React.ChangeEvent<HTMLInputElement> ) =>
@@ -284,9 +302,11 @@ class SettingsPage extends React.PureComponent<Props, State>
 
 export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
   ( state ) => ( {
-    storedData: state.stored
+    storedData: state.stored,
+    useDarkTheme: state.stored.settings.useDarkTheme,
   } ),
   {
+    setUseDarkTheme,
     setUserData,
     clearUserData,
     setSettingsData,
