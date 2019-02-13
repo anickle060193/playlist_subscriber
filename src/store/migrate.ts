@@ -1,10 +1,10 @@
 import { PersistedState, createMigrate, MigrationManifest } from 'redux-persist';
 
-import { Version, UserDataTypes, PreviousVersions, MIGRATORS } from 'utils/user_data';
+import { Version, StoredDataTypes, PreviousVersions, MIGRATORS } from 'utils/stored_data';
 
 interface UserPersistedState<V extends Version> extends PersistedState
 {
-  user: UserDataTypes[ V ];
+  user: StoredDataTypes[ V ];
 }
 
 export const MIGRATIONS: { [ version in Version ]: ( userData: UserPersistedState<PreviousVersions[ version ]> ) => UserPersistedState<version> } = {
@@ -23,6 +23,10 @@ export const MIGRATIONS: { [ version in Version ]: ( userData: UserPersistedStat
   [ Version.V3 ]: ( state ) => ( {
     ...state,
     user: MIGRATORS[ Version.V3 ]( state.user )
+  } ),
+  [ Version.V4 ]: ( state ) => ( {
+    ...state,
+    user: MIGRATORS[ Version.V4 ]( state.user )
   } ),
 };
 

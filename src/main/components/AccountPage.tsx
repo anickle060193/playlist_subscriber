@@ -22,9 +22,11 @@ import { redTheme } from 'common/theme';
 
 import PlaylistSubscriptionsList from 'common/components/PlaylistSubscriptionsList';
 
-import { State as UserData, clearUserData, setUserData } from 'store/reducers/user';
+import { State as StoredData } from 'store/reducers/stored';
+import { State as UserData, clearUserData, setUserData } from 'store/reducers/stored/user';
+import { State as SettingsData, clearSettingsData, setSettingsData } from 'store/reducers/stored/settings';
 
-import { formatExportUserDataAsDatUrl, parseExportUserData } from 'utils/user_data';
+import { formatExportStoredDataAsDatUrl, parseExportStoredData } from 'utils/stored_data';
 import { readFile } from 'utils/file';
 
 const styles = ( theme: Theme ) => createStyles( {
@@ -50,13 +52,15 @@ const styles = ( theme: Theme ) => createStyles( {
 
 interface PropsFromState
 {
-  userData: UserData;
+  storedData: StoredData;
 }
 
 interface PropsFromDispatch
 {
   setUserData: ( userData: UserData ) => void;
   clearUserData: () => void;
+  setSettingsData: ( settingsData: SettingsData ) => void;
+  clearSettingsData: () => void;
 }
 
 interface State
@@ -80,7 +84,7 @@ class SettingsPage extends React.PureComponent<Props, State>
 
   public render()
   {
-    const { classes, userData } = this.props;
+    const { classes, storedData: userData } = this.props;
     const {
       userDataImportSnackbarOpen, userDataImportDialogOpen, userDataImportResult,
       clearDataDialogOpen
@@ -101,7 +105,7 @@ class SettingsPage extends React.PureComponent<Props, State>
           <Typography>Export your user data to easily transfer data.</Typography>
           <div>
             <Button
-              href={formatExportUserDataAsDatUrl( userData )}
+              href={formatExportStoredDataAsDatUrl( userData )}
               download="user_data.json"
               variant="outlined"
               color="primary"
@@ -229,8 +233,8 @@ class SettingsPage extends React.PureComponent<Props, State>
       return;
     }
 
-    let userData = parseExportUserData( result );
-    if( !userData )
+    let storedData = parseExportStoredData( result );
+    if( !storedData )
     {
       this.setState( {
         userDataImportDialogOpen: true,
@@ -239,7 +243,9 @@ class SettingsPage extends React.PureComponent<Props, State>
       return;
     }
 
-    this.props.setUserData( userData );
+    this.props.setUserData( storedData.user );
+    this.props.setSettingsData( storedData.settings );
+
     window.setTimeout( () =>
     {
       this.setState( { userDataImportSnackbarOpen: true } );
@@ -271,16 +277,19 @@ class SettingsPage extends React.PureComponent<Props, State>
   private onClearData = () =>
   {
     this.props.clearUserData();
+    this.props.clearSettingsData();
     this.setState( { clearDataDialogOpen: false } );
   }
 }
 
 export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
   ( state ) => ( {
-    userData: state.user
+    storedData: state.stored
   } ),
   {
     setUserData,
-    clearUserData
+    clearUserData,
+    setSettingsData,
+    clearSettingsData,
   }
 )( withStyles( styles )( SettingsPage ) );

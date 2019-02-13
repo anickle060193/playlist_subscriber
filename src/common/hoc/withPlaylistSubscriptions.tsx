@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { setPlaylistSubscriptions } from 'store/reducers/user';
+import { setPlaylistSubscriptions } from 'store/reducers/stored/user';
 
 interface PropsFromState
 {
@@ -29,7 +29,7 @@ export default function withPlaylistSubscriptions<P = {}>( WrappedComponent: Rea
 
   return connect<PropsFromState, PropsFromDispatch, P, RootState>(
     ( state ) => ( {
-      playlistSubscriptions: state.user.playlistSubscriptions
+      playlistSubscriptions: state.stored.user.playlistSubscriptions
     } ),
     {
       setPlaylistSubscriptions

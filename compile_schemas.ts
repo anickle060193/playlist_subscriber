@@ -1,10 +1,16 @@
 import path = require( 'path' );
 import fs = require( 'fs' );
 import child_process = require( 'child_process' );
-import glob from 'glob';
+
+const USED_SCHEMAS = [
+  'exported_stored_data',
+  'playlist_subscriptions',
+  'youtube_paginated_response',
+  'youtube_playlist',
+  'youtube_playlist_item',
+];
 
 const schemasDir = path.resolve( __dirname, 'schemas' );
-const schemas = glob.sync( path.resolve( schemasDir, '*.json' ) );
 
 const validatorsDir = path.resolve( __dirname, 'src', 'utils', 'validators' );
 
@@ -23,15 +29,14 @@ else
   }
 }
 
-for( let schema of schemas )
+for( let schema of USED_SCHEMAS )
 {
-  const { name } = path.parse( schema );
-  console.log( 'Compiling schema:', name );
-
-  const validatorFilename = path.resolve( validatorsDir, name + '.js' );
+  console.log( 'Compiling schema:', schema );
+  let schemaFilename = path.resolve( schemasDir, schema );
+  const validatorFilename = path.resolve( validatorsDir, schema + '.js' );
   const command = [
     'yarn run ajv compile',
-    '-s', `"${schema}"`,
+    '-s', `"${schemaFilename}"`,
     '-r', './schemas/*.json',
     '-o', `"${validatorFilename}"`,
     '-c', '"./schemas/ajv/keywords.js"',

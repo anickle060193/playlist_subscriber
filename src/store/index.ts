@@ -9,7 +9,7 @@ import rootReducer from './reducers';
 import { migrate } from './migrate';
 import { persistChromeSyncStorage } from './persistChromeStorage';
 
-import { Version } from 'utils/user_data';
+import { Version } from 'utils/stored_data';
 
 const middleWares: Middleware[] = [
   thunk
@@ -27,7 +27,7 @@ if( process.env.NODE_ENV === 'development' )
 
 const persistConfig: PersistConfig = {
   key: 'user',
-  whitelist: [ 'user' ],
+  whitelist: [ 'stored' ],
   storage: persistChromeSyncStorage,
   stateReconciler: autoMergeLevel2,
   migrate: migrate,

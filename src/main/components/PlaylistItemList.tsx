@@ -6,7 +6,7 @@ import CloseIcon from '@material-ui/icons/Close';
 
 import PlaylistItemThumbnail from 'main/components/PlaylistItemThumbnail';
 
-import { hidePlaylistItem, unhidePlaylistItem } from 'store/reducers/user';
+import { hidePlaylistItem, unhidePlaylistItem } from 'store/reducers/stored/user';
 
 import { YoutubePlaylistItem, compareYoutubePlaylistItems } from 'utils/youtube_api_types';
 

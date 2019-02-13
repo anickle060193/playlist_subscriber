@@ -86,7 +86,7 @@ class HomePage extends React.PureComponent<Props>
 export default withPlaylists( withStyles( styles )( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state ) => ( {
     homeVisibleItemCount: state.ui.main.homeVisibleItemCount,
-    hiddenPlaylistItems: state.user.hiddenPlaylistItems,
+    hiddenPlaylistItems: state.stored.user.hiddenPlaylistItems,
   } ),
   {
     showMoreHomeItems,

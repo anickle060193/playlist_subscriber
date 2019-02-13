@@ -1,11 +1,11 @@
-import exportedUserDataValidator from './validators/exported_user_data';
+import exportedStoredDataValidator from './validators/exported_stored_data';
 import playlistSubscriptionsValidator from './validators/playlist_subscriptions';
 import youtubePaginatedResponseValidator from './validators/youtube_paginated_response';
 import youtubePlaylistValidator from './validators/youtube_playlist';
 import youtubePlaylistItemValidator from './validators/youtube_playlist_item';
 
 import { YoutubePaginatedResponse, YoutubePlaylist, YoutubePlaylistItem } from './youtube_api_types';
-import { ExportedUserData } from './user_data';
+import { ExportedStoredData } from './stored_data';
 
 interface ValidatorError
 {
@@ -43,9 +43,9 @@ function validate<T>( validator: Validator, value: unknown ): T
   }
 }
 
-export function validateExportedUserData( data: unknown )
+export function validateExportedStoredData( data: unknown )
 {
-  return validate<ExportedUserData>( exportedUserDataValidator as Validator, data );
+  return validate<ExportedStoredData>( exportedStoredDataValidator as Validator, data );
 }
 
 export function validatePlaylistSubscriptions( data: unknown )

@@ -72,7 +72,7 @@ class SubscriptionsPage extends React.PureComponent<Props>
 export default withPlaylists( withStyles( styles )( connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state ) => ( {
     playlistsVisibleItemCount: state.ui.main.playlistsVisibleItemCount,
-    hiddenPlaylistItems: state.user.hiddenPlaylistItems,
+    hiddenPlaylistItems: state.stored.user.hiddenPlaylistItems,
   } ),
   {
     showMorePlaylistItems,
