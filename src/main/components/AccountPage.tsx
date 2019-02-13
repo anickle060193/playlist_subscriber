@@ -98,7 +98,7 @@ class SettingsPage extends React.PureComponent<Props, State>
         <div className={classes.group}>
           <Typography variant="h5">Export User Data</Typography>
           <Divider />
-          <Typography>Export your user data to easily transferring data.</Typography>
+          <Typography>Export your user data to easily transfer data.</Typography>
           <div>
             <Button
               href={formatExportUserDataAsDatUrl( userData )}
