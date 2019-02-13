@@ -45,8 +45,8 @@ export type ExportedUserData = (
 
 export function formatExportUserDataAsDatUrl( state: UserState )
 {
-  let exportedUserData: ExportedUserData = {
-    version: Version.V1,
+  let exportedUserData: UserData<Version.CurrentVersion> = {
+    version: Version.CurrentVersion,
     data: state
   };
 
@@ -55,7 +55,7 @@ export function formatExportUserDataAsDatUrl( state: UserState )
   return `data:text/json;charset=utf-8,${encodeURIComponent( data )}`;
 }
 
-export function parseExportUserData( dataText: string ): UserState
+export function parseExportUserData( dataText: string ): UserState | null
 {
   try
   {
@@ -77,7 +77,7 @@ export function parseExportUserData( dataText: string ): UserState
   catch( e )
   {
     console.error( 'Failed to parse exported user data:\n', dataText, '\n', e );
-    return initialUserState;
+    return null;
   }
 }
 

@@ -23,6 +23,16 @@
           "$ref": "exported_user_data_v1"
         }
       }
+    },
+    {
+      "properties": {
+        "version": {
+          "const": 2
+        },
+        "data": {
+          "$ref": "exported_user_data_v2"
+        }
+      }
     }
   ]
 }

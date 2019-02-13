@@ -1,0 +1,22 @@
+{
+  "$id": "exported_user_data_v2",
+  "type": "object",
+  "required": [
+    "playlistSubscriptions",
+    "hiddenPlaylistItems"
+  ],
+  "properties": {
+    "playlistSubscriptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "hiddenPlaylistItems": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    }
+  }
+}
