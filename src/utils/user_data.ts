@@ -1,5 +1,6 @@
 import { State as UserState, initialState as initialUserState } from 'store/reducers/user';
 
+import { jsonParseReviver, jsonStringifyReplacer } from 'utils/transformer';
 import { validateExportedUserData } from 'utils/validation';
 
 export const enum Version
@@ -50,7 +51,7 @@ export function formatExportUserDataAsDatUrl( state: UserState )
     data: state
   };
 
-  let data = JSON.stringify( exportedUserData, null, 2 );
+  let data = JSON.stringify( exportedUserData, jsonStringifyReplacer, 2 );
 
   return `data:text/json;charset=utf-8,${encodeURIComponent( data )}`;
 }
@@ -59,7 +60,7 @@ export function parseExportUserData( dataText: string ): UserState | null
 {
   try
   {
-    let data = JSON.parse( dataText ) as unknown;
+    let data = JSON.parse( dataText, jsonParseReviver ) as unknown;
 
     let exportedUserData = validateExportedUserData( data );
 

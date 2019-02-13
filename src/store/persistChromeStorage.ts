@@ -1,5 +1,7 @@
 import { Storage } from 'redux-persist';
 
+import { jsonParseReviver, jsonStringifyReplacer } from 'utils/transformer';
+
 export const persistChromeSyncStorage: Storage = {
   getItem: ( key ) =>
   {
@@ -19,7 +21,20 @@ export const persistChromeSyncStorage: Storage = {
         }
         else
         {
-          resolve( items[ key ] );
+          let value = items[ key ];
+          if( typeof value === 'string' )
+          {
+            try
+            {
+              value = JSON.parse( value, jsonParseReviver );
+            }
+            catch( e )
+            {
+              console.warn( 'Could not parse stored value:', e );
+            }
+          }
+
+          resolve( value );
         }
       } );
     } );
@@ -30,7 +45,9 @@ export const persistChromeSyncStorage: Storage = {
 
     return new Promise( ( resolve, reject ) =>
     {
-      chrome.storage.sync.set( { [ key ]: value }, () =>
+      let v = JSON.stringify( value, jsonStringifyReplacer );
+
+      chrome.storage.sync.set( { [ key ]: v }, () =>
       {
         if( chrome.runtime.lastError )
         {
