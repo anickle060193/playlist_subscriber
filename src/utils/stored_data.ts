@@ -173,7 +173,7 @@ export function migrateStoredDataV3toV4( storedData: StoredDataTypes[ Version.V3
   return {
     user: storedData,
     settings: {
-      useDarkTheme: false
+      useDarkTheme: true
     }
   };
 }

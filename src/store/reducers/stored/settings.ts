@@ -7,7 +7,7 @@ export interface State
 }
 
 export const initialState: State = {
-  useDarkTheme: false
+  useDarkTheme: true
 };
 
 const createAction = actionCreatorFactory();
