@@ -85,6 +85,44 @@ var validate = (function() {
     }
   };
   refVal[4] = refVal4;
+  var refVal5 = {
+    "$id": "exported_user_data_v5",
+    "type": "object",
+    "required": ["user", "settings"],
+    "properties": {
+      "user": {
+        "type": "object",
+        "required": ["playlistSubscriptions", "hiddenPlaylistItems", "watchedVideos"],
+        "properties": {
+          "playlistSubscriptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hiddenPlaylistItems": {
+            "set": "string"
+          },
+          "watchedVideos": {
+            "set": "string"
+          }
+        }
+      },
+      "settings": {
+        "type": "object",
+        "required": ["useDarkTheme", "markVideoWatchedOnOpen"],
+        "properties": {
+          "useDarkTheme": {
+            "type": "boolean"
+          },
+          "markVideoWatchedOnOpen": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  };
+  refVal[5] = refVal5;
   return function validate(data, dataPath, parentData, parentDataProperty, rootData) {
     'use strict'; /*# sourceURL=exported_user_data */
     var vErrors = null;
@@ -979,6 +1017,404 @@ var validate = (function() {
           }
           var valid1 = errors === errs_1;
           valid0 = valid0 || valid1;
+          if (!valid0) {
+            var errs_1 = errors;
+            if ((data && typeof data === "object" && !Array.isArray(data))) {
+              var errs__1 = errors;
+              var valid2 = true;
+              var data1 = data.version;
+              if (data1 !== undefined) {
+                var errs_2 = errors;
+                var schema2 = validate.schema.anyOf[4].properties.version.const;
+                var valid2 = equal(data1, schema2);
+                if (!valid2) {
+                  var err = {
+                    keyword: 'const',
+                    dataPath: (dataPath || '') + '.version',
+                    schemaPath: '#/anyOf/4/properties/version/const',
+                    params: {
+                      allowedValue: schema2
+                    },
+                    message: 'should be equal to constant',
+                    schema: validate.schema.anyOf[4].properties.version.const,
+                    parentSchema: validate.schema.anyOf[4].properties.version,
+                    data: data1
+                  };
+                  if (vErrors === null) vErrors = [err];
+                  else vErrors.push(err);
+                  errors++;
+                }
+                var valid2 = errors === errs_2;
+              }
+              var data1 = data.data;
+              if (data1 !== undefined) {
+                var errs_2 = errors;
+                var errs_3 = errors;
+                if ((data1 && typeof data1 === "object" && !Array.isArray(data1))) {
+                  var errs__3 = errors;
+                  var valid4 = true;
+                  var data2 = data1.user;
+                  if (data2 === undefined) {
+                    valid4 = false;
+                    var err = {
+                      keyword: 'required',
+                      dataPath: (dataPath || '') + '.data',
+                      schemaPath: 'exported_user_data_v5/required',
+                      params: {
+                        missingProperty: 'user'
+                      },
+                      message: 'should have required property \'user\'',
+                      schema: refVal5.properties,
+                      parentSchema: refVal5,
+                      data: data1
+                    };
+                    if (vErrors === null) vErrors = [err];
+                    else vErrors.push(err);
+                    errors++;
+                  } else {
+                    var errs_4 = errors;
+                    if ((data2 && typeof data2 === "object" && !Array.isArray(data2))) {
+                      var errs__4 = errors;
+                      var valid5 = true;
+                      var data3 = data2.playlistSubscriptions;
+                      if (data3 === undefined) {
+                        valid5 = false;
+                        var err = {
+                          keyword: 'required',
+                          dataPath: (dataPath || '') + '.data.user',
+                          schemaPath: 'exported_user_data_v5/properties/user/required',
+                          params: {
+                            missingProperty: 'playlistSubscriptions'
+                          },
+                          message: 'should have required property \'playlistSubscriptions\'',
+                          schema: refVal5.properties.user.properties,
+                          parentSchema: refVal5.properties.user,
+                          data: data2
+                        };
+                        if (vErrors === null) vErrors = [err];
+                        else vErrors.push(err);
+                        errors++;
+                      } else {
+                        var errs_5 = errors;
+                        if (Array.isArray(data3)) {
+                          var errs__5 = errors;
+                          var valid5;
+                          for (var i5 = 0; i5 < data3.length; i5++) {
+                            var data4 = data3[i5];
+                            var errs_6 = errors;
+                            if (typeof data4 !== "string") {
+                              var err = {
+                                keyword: 'type',
+                                dataPath: (dataPath || '') + '.data.user.playlistSubscriptions[' + i5 + ']',
+                                schemaPath: 'exported_user_data_v5/properties/user/properties/playlistSubscriptions/items/type',
+                                params: {
+                                  type: 'string'
+                                },
+                                message: 'should be string',
+                                schema: refVal5.properties.user.properties.playlistSubscriptions.items.type,
+                                parentSchema: refVal5.properties.user.properties.playlistSubscriptions.items,
+                                data: data4
+                              };
+                              if (vErrors === null) vErrors = [err];
+                              else vErrors.push(err);
+                              errors++;
+                            }
+                            var valid6 = errors === errs_6;
+                          }
+                        } else {
+                          var err = {
+                            keyword: 'type',
+                            dataPath: (dataPath || '') + '.data.user.playlistSubscriptions',
+                            schemaPath: 'exported_user_data_v5/properties/user/properties/playlistSubscriptions/type',
+                            params: {
+                              type: 'array'
+                            },
+                            message: 'should be array',
+                            schema: refVal5.properties.user.properties.playlistSubscriptions.type,
+                            parentSchema: refVal5.properties.user.properties.playlistSubscriptions,
+                            data: data3
+                          };
+                          if (vErrors === null) vErrors = [err];
+                          else vErrors.push(err);
+                          errors++;
+                        }
+                        var valid5 = errors === errs_5;
+                      }
+                      var data3 = data2.hiddenPlaylistItems;
+                      if (data3 === undefined) {
+                        valid5 = false;
+                        var err = {
+                          keyword: 'required',
+                          dataPath: (dataPath || '') + '.data.user',
+                          schemaPath: 'exported_user_data_v5/properties/user/required',
+                          params: {
+                            missingProperty: 'hiddenPlaylistItems'
+                          },
+                          message: 'should have required property \'hiddenPlaylistItems\'',
+                          schema: refVal5.properties.user.properties,
+                          parentSchema: refVal5.properties.user,
+                          data: data2
+                        };
+                        if (vErrors === null) vErrors = [err];
+                        else vErrors.push(err);
+                        errors++;
+                      } else {
+                        var errs_5 = errors;
+                        if ((data3 && typeof data3 === "object" && !Array.isArray(data3))) {
+                          var errs__5 = errors;
+                          var valid5;
+                          valid5 = data3 instanceof Set && Array.from(data3).every((d) => typeof d === 'string');
+                          if (!valid5) {
+                            if (errs__5 == errors) {
+                              var err = {
+                                keyword: 'set',
+                                dataPath: (dataPath || '') + '.data.user.hiddenPlaylistItems',
+                                schemaPath: 'exported_user_data_v5/properties/user/properties/hiddenPlaylistItems/set',
+                                params: {
+                                  keyword: 'set'
+                                },
+                                message: 'should pass "set" keyword validation',
+                                schema: refVal5.properties.user.properties.hiddenPlaylistItems.set,
+                                parentSchema: refVal5.properties.user.properties.hiddenPlaylistItems,
+                                data: data3
+                              };
+                              if (vErrors === null) vErrors = [err];
+                              else vErrors.push(err);
+                              errors++;
+                            } else {
+                              for (var i5 = errs__5; i5 < errors; i5++) {
+                                var ruleErr5 = vErrors[i5];
+                                if (ruleErr5.dataPath === undefined) ruleErr5.dataPath = (dataPath || '') + '.data.user.hiddenPlaylistItems';
+                                if (ruleErr5.schemaPath === undefined) {
+                                  ruleErr5.schemaPath = "exported_user_data_v5/properties/user/properties/hiddenPlaylistItems/set";
+                                }
+                                ruleErr5.schema = refVal5.properties.user.properties.hiddenPlaylistItems.set;
+                                ruleErr5.data = data3;
+                              }
+                            }
+                          }
+                        }
+                        var valid5 = errors === errs_5;
+                      }
+                      var data3 = data2.watchedVideos;
+                      if (data3 === undefined) {
+                        valid5 = false;
+                        var err = {
+                          keyword: 'required',
+                          dataPath: (dataPath || '') + '.data.user',
+                          schemaPath: 'exported_user_data_v5/properties/user/required',
+                          params: {
+                            missingProperty: 'watchedVideos'
+                          },
+                          message: 'should have required property \'watchedVideos\'',
+                          schema: refVal5.properties.user.properties,
+                          parentSchema: refVal5.properties.user,
+                          data: data2
+                        };
+                        if (vErrors === null) vErrors = [err];
+                        else vErrors.push(err);
+                        errors++;
+                      } else {
+                        var errs_5 = errors;
+                        if ((data3 && typeof data3 === "object" && !Array.isArray(data3))) {
+                          var errs__5 = errors;
+                          var valid5;
+                          valid5 = data3 instanceof Set && Array.from(data3).every((d) => typeof d === 'string');
+                          if (!valid5) {
+                            if (errs__5 == errors) {
+                              var err = {
+                                keyword: 'set',
+                                dataPath: (dataPath || '') + '.data.user.watchedVideos',
+                                schemaPath: 'exported_user_data_v5/properties/user/properties/watchedVideos/set',
+                                params: {
+                                  keyword: 'set'
+                                },
+                                message: 'should pass "set" keyword validation',
+                                schema: refVal5.properties.user.properties.watchedVideos.set,
+                                parentSchema: refVal5.properties.user.properties.watchedVideos,
+                                data: data3
+                              };
+                              if (vErrors === null) vErrors = [err];
+                              else vErrors.push(err);
+                              errors++;
+                            } else {
+                              for (var i5 = errs__5; i5 < errors; i5++) {
+                                var ruleErr5 = vErrors[i5];
+                                if (ruleErr5.dataPath === undefined) ruleErr5.dataPath = (dataPath || '') + '.data.user.watchedVideos';
+                                if (ruleErr5.schemaPath === undefined) {
+                                  ruleErr5.schemaPath = "exported_user_data_v5/properties/user/properties/watchedVideos/set";
+                                }
+                                ruleErr5.schema = refVal5.properties.user.properties.watchedVideos.set;
+                                ruleErr5.data = data3;
+                              }
+                            }
+                          }
+                        }
+                        var valid5 = errors === errs_5;
+                      }
+                    } else {
+                      var err = {
+                        keyword: 'type',
+                        dataPath: (dataPath || '') + '.data.user',
+                        schemaPath: 'exported_user_data_v5/properties/user/type',
+                        params: {
+                          type: 'object'
+                        },
+                        message: 'should be object',
+                        schema: refVal5.properties.user.type,
+                        parentSchema: refVal5.properties.user,
+                        data: data2
+                      };
+                      if (vErrors === null) vErrors = [err];
+                      else vErrors.push(err);
+                      errors++;
+                    }
+                    var valid4 = errors === errs_4;
+                  }
+                  var data2 = data1.settings;
+                  if (data2 === undefined) {
+                    valid4 = false;
+                    var err = {
+                      keyword: 'required',
+                      dataPath: (dataPath || '') + '.data',
+                      schemaPath: 'exported_user_data_v5/required',
+                      params: {
+                        missingProperty: 'settings'
+                      },
+                      message: 'should have required property \'settings\'',
+                      schema: refVal5.properties,
+                      parentSchema: refVal5,
+                      data: data1
+                    };
+                    if (vErrors === null) vErrors = [err];
+                    else vErrors.push(err);
+                    errors++;
+                  } else {
+                    var errs_4 = errors;
+                    if ((data2 && typeof data2 === "object" && !Array.isArray(data2))) {
+                      var errs__4 = errors;
+                      var valid5 = true;
+                      var data3 = data2.useDarkTheme;
+                      if (data3 === undefined) {
+                        valid5 = false;
+                        var err = {
+                          keyword: 'required',
+                          dataPath: (dataPath || '') + '.data.settings',
+                          schemaPath: 'exported_user_data_v5/properties/settings/required',
+                          params: {
+                            missingProperty: 'useDarkTheme'
+                          },
+                          message: 'should have required property \'useDarkTheme\'',
+                          schema: refVal5.properties.settings.properties,
+                          parentSchema: refVal5.properties.settings,
+                          data: data2
+                        };
+                        if (vErrors === null) vErrors = [err];
+                        else vErrors.push(err);
+                        errors++;
+                      } else {
+                        var errs_5 = errors;
+                        if (typeof data3 !== "boolean") {
+                          var err = {
+                            keyword: 'type',
+                            dataPath: (dataPath || '') + '.data.settings.useDarkTheme',
+                            schemaPath: 'exported_user_data_v5/properties/settings/properties/useDarkTheme/type',
+                            params: {
+                              type: 'boolean'
+                            },
+                            message: 'should be boolean',
+                            schema: refVal5.properties.settings.properties.useDarkTheme.type,
+                            parentSchema: refVal5.properties.settings.properties.useDarkTheme,
+                            data: data3
+                          };
+                          if (vErrors === null) vErrors = [err];
+                          else vErrors.push(err);
+                          errors++;
+                        }
+                        var valid5 = errors === errs_5;
+                      }
+                      var data3 = data2.markVideoWatchedOnOpen;
+                      if (data3 === undefined) {
+                        valid5 = false;
+                        var err = {
+                          keyword: 'required',
+                          dataPath: (dataPath || '') + '.data.settings',
+                          schemaPath: 'exported_user_data_v5/properties/settings/required',
+                          params: {
+                            missingProperty: 'markVideoWatchedOnOpen'
+                          },
+                          message: 'should have required property \'markVideoWatchedOnOpen\'',
+                          schema: refVal5.properties.settings.properties,
+                          parentSchema: refVal5.properties.settings,
+                          data: data2
+                        };
+                        if (vErrors === null) vErrors = [err];
+                        else vErrors.push(err);
+                        errors++;
+                      } else {
+                        var errs_5 = errors;
+                        if (typeof data3 !== "boolean") {
+                          var err = {
+                            keyword: 'type',
+                            dataPath: (dataPath || '') + '.data.settings.markVideoWatchedOnOpen',
+                            schemaPath: 'exported_user_data_v5/properties/settings/properties/markVideoWatchedOnOpen/type',
+                            params: {
+                              type: 'boolean'
+                            },
+                            message: 'should be boolean',
+                            schema: refVal5.properties.settings.properties.markVideoWatchedOnOpen.type,
+                            parentSchema: refVal5.properties.settings.properties.markVideoWatchedOnOpen,
+                            data: data3
+                          };
+                          if (vErrors === null) vErrors = [err];
+                          else vErrors.push(err);
+                          errors++;
+                        }
+                        var valid5 = errors === errs_5;
+                      }
+                    } else {
+                      var err = {
+                        keyword: 'type',
+                        dataPath: (dataPath || '') + '.data.settings',
+                        schemaPath: 'exported_user_data_v5/properties/settings/type',
+                        params: {
+                          type: 'object'
+                        },
+                        message: 'should be object',
+                        schema: refVal5.properties.settings.type,
+                        parentSchema: refVal5.properties.settings,
+                        data: data2
+                      };
+                      if (vErrors === null) vErrors = [err];
+                      else vErrors.push(err);
+                      errors++;
+                    }
+                    var valid4 = errors === errs_4;
+                  }
+                } else {
+                  var err = {
+                    keyword: 'type',
+                    dataPath: (dataPath || '') + '.data',
+                    schemaPath: 'exported_user_data_v5/type',
+                    params: {
+                      type: 'object'
+                    },
+                    message: 'should be object',
+                    schema: refVal5.type,
+                    parentSchema: refVal5,
+                    data: data1
+                  };
+                  if (vErrors === null) vErrors = [err];
+                  else vErrors.push(err);
+                  errors++;
+                }
+                var valid3 = errors === errs_3;
+                var valid2 = errors === errs_2;
+              }
+            }
+            var valid1 = errors === errs_1;
+            valid0 = valid0 || valid1;
+          }
         }
       }
     }
@@ -1053,6 +1489,15 @@ validate.schema = {
       },
       "data": {
         "$ref": "exported_user_data_v4"
+      }
+    }
+  }, {
+    "properties": {
+      "version": {
+        "const": 5
+      },
+      "data": {
+        "$ref": "exported_user_data_v5"
       }
     }
   }]

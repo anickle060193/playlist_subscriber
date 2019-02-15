@@ -28,6 +28,10 @@ export const MIGRATIONS: { [ version in Version ]: ( userData: UserPersistedStat
     ...state,
     user: MIGRATORS[ Version.V4 ]( state.user )
   } ),
+  [ Version.V5 ]: ( state ) => ( {
+    ...state,
+    user: MIGRATORS[ Version.V5 ]( state.user )
+  } )
 };
 
 export const migrate = createMigrate( MIGRATIONS as unknown as MigrationManifest, { debug: process.env.NODE_ENV === 'development' } );

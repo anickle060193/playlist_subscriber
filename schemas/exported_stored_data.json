@@ -53,6 +53,16 @@
           "$ref": "exported_user_data_v4"
         }
       }
+    },
+    {
+      "properties": {
+        "version": {
+          "const": 5
+        },
+        "data": {
+          "$ref": "exported_user_data_v5"
+        }
+      }
     }
   ]
 }

@@ -1,4 +1,5 @@
 import React = require( 'react' );
+import { connect } from 'react-redux';
 import moment from 'moment';
 import classNames from 'classnames';
 import { Theme, createStyles, WithStyles, withStyles, Typography, IconButton, MenuItem } from '@material-ui/core';
@@ -7,6 +8,8 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import NoReferrerAnchor from 'common/components/NoReferrerAnchor';
 import SimpleMenu from 'common/components/SimpleMenu';
+
+import { markVideoAsWatched, unmarkVideoAsWatched } from 'store/reducers/stored/user';
 
 import { YoutubePlaylistItem, getYoutubePlaylistItemThumbnail } from 'utils/youtube_api_types';
 
@@ -23,8 +26,9 @@ const styles = ( theme: Theme ) => createStyles( {
     position: 'relative'
   },
   thumbnail: {
+    display: 'block',
     width: THUMBNAIL_WIDTH,
-    minHeight: THUMBNAIL_HEIGHT
+    minHeight: THUMBNAIL_HEIGHT,
   },
   thumbnailOverlay: {
     position: 'absolute',
@@ -44,6 +48,18 @@ const styles = ( theme: Theme ) => createStyles( {
     '$thumbnailOverlay:hover &': {
       opacity: 0.8
     }
+  },
+  watchedIndicator: {
+    ...theme.typography.button,
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    margin: theme.spacing.unit / 2,
+    padding: theme.spacing.unit / 2,
+    borderRadius: 3,
+    lineHeight: theme.typography.button.fontSize,
+    background: 'rgba( 35, 35, 35, 0.8 )',
+    color: theme.palette.secondary.main,
   },
   details: {
     display: 'flex',
@@ -93,12 +109,26 @@ const styles = ( theme: Theme ) => createStyles( {
   }
 } );
 
-interface Props extends WithStyles<typeof styles>
+interface PropsFromState
+{
+  watched: boolean;
+  markVideoWatchedOnOpen: boolean;
+}
+
+interface PropsFromDispatch
+{
+  markVideoAsWatched: ( videoId: string ) => void;
+  unmarkVideoAsWatched: ( videoId: string ) => void;
+}
+
+interface OwnProps
 {
   playlistItem: YoutubePlaylistItem | null | undefined;
   showChannelTitle?: boolean;
   hidePlaylistItem: ( playlistItemId: string ) => void;
 }
+
+type Props = PropsFromState & PropsFromDispatch & OwnProps & WithStyles<typeof styles>;
 
 interface State
 {
@@ -117,7 +147,7 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
 
   public render()
   {
-    const { classes, playlistItem, showChannelTitle } = this.props;
+    const { classes, playlistItem, showChannelTitle, watched } = this.props;
     const { menuAnchorEl } = this.state;
 
     if( playlistItem )
@@ -135,10 +165,16 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
               src={url}
               alt={playlistItem.snippet.title}
             />
+            {watched && (
+              <Typography className={classes.watchedIndicator}>
+                Watched
+              </Typography>
+            )}
             <IconButton
               className={classes.thumbnailOverlay}
               component={NoReferrerAnchor}
-              href={`https://www.youtube.com/watch?v=${playlistItem.snippet.resourceId.videoId}`}
+              onClick={this.onVideoClick}
+              onMouseUp={this.onVideoClick}
             >
               <PlayCircleFilledRoundedIcon className={classes.thumbnailOverlayIcon} />
             </IconButton>
@@ -147,7 +183,8 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
             <div className={classes.detailsContent}>
               <NoReferrerAnchor
                 className={classes.linkText}
-                href={`https://www.youtube.com/watch?v=${playlistItem.snippet.resourceId.videoId}`}
+                onClick={this.onVideoClick}
+                onMouseUp={this.onVideoClick}
               >
                 <Typography variant="subtitle1" className={classes.itemTitle}>
                   {playlistItem.snippet.title}
@@ -182,6 +219,13 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
               onClose={this.onMenuClose}
               placement="bottom-end"
             >
+              {watched ?
+                (
+                  <MenuItem onClick={this.onUnmarkAsWatchedClick}>Unmark as Watched</MenuItem>
+                ) :
+                (
+                  <MenuItem onClick={this.onMarkAsWatchedClick}>Mark as Watched</MenuItem>
+                )}
               <MenuItem onClick={this.onHideClick}>Hide</MenuItem>
             </SimpleMenu>
           </div>
@@ -198,6 +242,37 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
           Unable to retrieve playlist items for playlist
       </div>
       );
+    }
+  }
+
+  private onVideoClick = ( e: React.MouseEvent ) =>
+  {
+    e.preventDefault();
+
+    if( !( ( e.button === 0
+      && e.type === 'click' )
+      || ( e.button === 1
+        && e.type === 'mouseup' ) ) )
+    {
+      return;
+    }
+
+    if( !this.props.playlistItem )
+    {
+      return;
+    }
+
+    const videoId = this.props.playlistItem.contentDetails.videoId;
+
+    const newWindow = window.open( `https://www.youtube.com/watch?v=${videoId}` );
+    if( newWindow )
+    {
+      newWindow.opener = null;
+    }
+
+    if( this.props.markVideoWatchedOnOpen )
+    {
+      this.props.markVideoAsWatched( videoId );
     }
   }
 
@@ -220,6 +295,35 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
 
     this.onMenuClose();
   }
+
+  private onUnmarkAsWatchedClick = () =>
+  {
+    if( this.props.playlistItem )
+    {
+      this.props.unmarkVideoAsWatched( this.props.playlistItem.contentDetails.videoId );
+    }
+
+    this.onMenuClose();
+  }
+
+  private onMarkAsWatchedClick = () =>
+  {
+    if( this.props.playlistItem )
+    {
+      this.props.markVideoAsWatched( this.props.playlistItem.contentDetails.videoId );
+    }
+
+    this.onMenuClose();
+  }
 }
 
-export default withStyles( styles )( PlaylistItemThumbnail );
+export default connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
+  ( state, { playlistItem } ) => ( {
+    watched: !!playlistItem && state.stored.user.watchedVideos.has( playlistItem.contentDetails.videoId ),
+    markVideoWatchedOnOpen: state.stored.settings.markVideoWatchedOnOpen,
+  } ),
+  {
+    markVideoAsWatched,
+    unmarkVideoAsWatched,
+  }
+)( withStyles( styles )( PlaylistItemThumbnail ) );

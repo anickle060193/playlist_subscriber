@@ -25,7 +25,7 @@ import { lightRedTheme, darkRedTheme } from 'common/theme';
 
 import { State as StoredData } from 'store/reducers/stored';
 import { State as UserData, clearUserData, setUserData } from 'store/reducers/stored/user';
-import { State as SettingsData, clearSettingsData, setSettingsData, setUseDarkTheme } from 'store/reducers/stored/settings';
+import { State as SettingsData, clearSettingsData, setSettingsData, setUseDarkTheme, setMarkVideoWatchedOnOpen } from 'store/reducers/stored/settings';
 
 import { formatExportStoredDataAsDatUrl, parseExportStoredData } from 'utils/stored_data';
 import { readFile } from 'utils/file';
@@ -51,19 +51,39 @@ const styles = ( theme: Theme ) => createStyles( {
   }
 } );
 
+const CheckboxSetting: React.SFC<{
+  label: string;
+  value: boolean;
+  setValue: ( value: boolean ) => void;
+}> = ( { label, value, setValue } ) => (
+  <FormGroup row={true}>
+    <FormControlLabel
+      control={(
+        <Checkbox
+          checked={value}
+          onChange={( e ) => setValue( e.target.checked )}
+        />
+      )}
+      label={label}
+    />
+  </FormGroup>
+);
+
 interface PropsFromState
 {
   storedData: StoredData;
   useDarkTheme: boolean;
+  markVideoWatchedOnOpen: boolean;
 }
 
 interface PropsFromDispatch
 {
-  setUseDarkTheme: ( useDarkTheme: boolean ) => void;
   setUserData: ( userData: UserData ) => void;
   clearUserData: () => void;
   setSettingsData: ( settingsData: SettingsData ) => void;
   clearSettingsData: () => void;
+  setUseDarkTheme: ( useDarkTheme: boolean ) => void;
+  setMarkVideoWatchedOnOpen: ( markVideoWatchedOnOpen: boolean ) => void;
 }
 
 interface State
@@ -87,7 +107,7 @@ class SettingsPage extends React.PureComponent<Props, State>
 
   public render()
   {
-    const { classes, storedData, useDarkTheme } = this.props;
+    const { classes, storedData } = this.props;
     const {
       userDataImportSnackbarOpen, userDataImportDialogOpen, userDataImportResult,
       clearDataDialogOpen
@@ -99,17 +119,16 @@ class SettingsPage extends React.PureComponent<Props, State>
         <div className={classes.group}>
           <Typography variant="h5">Settings</Typography>
           <Divider />
-          <FormGroup row={true}>
-            <FormControlLabel
-              control={(
-                <Checkbox
-                  checked={useDarkTheme}
-                  onChange={this.onUseDarkThemeChange}
-                />
-              )}
-              label="Use Dark Theme"
-            />
-          </FormGroup>
+          <CheckboxSetting
+            label="Use dark theme for Playlist Subscriber"
+            value={this.props.useDarkTheme}
+            setValue={this.props.setUseDarkTheme}
+          />
+          <CheckboxSetting
+            label="Mark video as watched within Playlist Subscriber when opened from Home or Subscriptions page"
+            value={this.props.markVideoWatchedOnOpen}
+            setValue={this.props.setMarkVideoWatchedOnOpen}
+          />
         </div>
 
         <div className={classes.group}>
@@ -179,7 +198,7 @@ class SettingsPage extends React.PureComponent<Props, State>
         </div>
 
         <div className={classes.group}>
-          <MuiThemeProvider theme={useDarkTheme ? darkRedTheme : lightRedTheme}>
+          <MuiThemeProvider theme={this.props.useDarkTheme ? darkRedTheme : lightRedTheme}>
             <Typography variant="h5" color="secondary">Clear User Data</Typography>
             <Divider />
             <Typography>Once you clear your user data, there is no recovering it. Proceed cautiously.</Typography>
@@ -216,11 +235,6 @@ class SettingsPage extends React.PureComponent<Props, State>
 
       </div>
     );
-  }
-
-  private onUseDarkThemeChange = ( e: React.ChangeEvent<HTMLInputElement> ) =>
-  {
-    this.props.setUseDarkTheme( e.target.checked );
   }
 
   private onImportUserDataFileChange = async ( e: React.ChangeEvent<HTMLInputElement> ) =>
@@ -304,6 +318,7 @@ export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
   ( state ) => ( {
     storedData: state.stored,
     useDarkTheme: state.stored.settings.useDarkTheme,
+    markVideoWatchedOnOpen: state.stored.settings.markVideoWatchedOnOpen,
   } ),
   {
     setUseDarkTheme,
@@ -311,5 +326,6 @@ export default connect<PropsFromState, PropsFromDispatch, {}, RootState>(
     clearUserData,
     setSettingsData,
     clearSettingsData,
+    setMarkVideoWatchedOnOpen,
   }
 )( withStyles( styles )( SettingsPage ) );

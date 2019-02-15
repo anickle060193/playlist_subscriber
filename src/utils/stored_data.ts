@@ -10,8 +10,9 @@ export const enum Version
   V2 = 2,
   V3 = 3,
   V4 = 4,
+  V5 = 5,
 
-  CurrentVersion = V4
+  CurrentVersion = V5
 }
 
 export interface PreviousVersions
@@ -21,6 +22,7 @@ export interface PreviousVersions
   [ Version.V2 ]: Version.V1;
   [ Version.V3 ]: Version.V2;
   [ Version.V4 ]: Version.V3;
+  [ Version.V5 ]: Version.V4;
 }
 
 type StoredDataV0 = {} | null;
@@ -53,6 +55,19 @@ interface StoredDataV4
   };
 }
 
+interface StoredDataV5
+{
+  user: {
+    playlistSubscriptions: string[];
+    hiddenPlaylistItems: Set<string>;
+    watchedVideos: Set<string>;
+  };
+  settings: {
+    useDarkTheme: boolean;
+    markVideoWatchedOnOpen: boolean;
+  };
+}
+
 export interface StoredDataTypes
 {
   [ Version.V0 ]: StoredDataV0;
@@ -60,6 +75,7 @@ export interface StoredDataTypes
   [ Version.V2 ]: StoredDataV2;
   [ Version.V3 ]: StoredDataV3;
   [ Version.V4 ]: StoredDataV4;
+  [ Version.V5 ]: StoredDataV5;
 }
 
 export interface StoredData<V extends Version>
@@ -72,7 +88,8 @@ export type ExportedStoredData = (
   StoredData<Version.V1> |
   StoredData<Version.V2> |
   StoredData<Version.V3> |
-  StoredData<Version.V4>
+  StoredData<Version.V4> |
+  StoredData<Version.V5>
 );
 
 export function formatExportStoredDataAsDatUrl( state: StoredState )
@@ -110,6 +127,7 @@ export const MIGRATORS: { [ version in Version ]: ( storedData: StoredDataTypes[
   [ Version.V2 ]: migrateStoredDataV1toV2,
   [ Version.V3 ]: migrateStoredDataV2toV3,
   [ Version.V4 ]: migrateStoredDataV3toV4,
+  [ Version.V5 ]: migrateStoredDataV4toV5,
 };
 
 function migrateExportedStoredData( exportedStoredData: ExportedStoredData ): StoredDataTypes[ Version.CurrentVersion ]
@@ -168,12 +186,29 @@ export function migrateStoredDataV2toV3( storedData: StoredDataTypes[ Version.V2
 
 export function migrateStoredDataV3toV4( storedData: StoredDataTypes[ Version.V3 ] ): StoredDataTypes[ Version.V4 ]
 {
-  console.log( 'Migration V2 -> V3:', storedData );
+  console.log( 'Migration V3 -> V4:', storedData );
 
   return {
     user: storedData,
     settings: {
       useDarkTheme: true
+    }
+  };
+}
+
+export function migrateStoredDataV4toV5( storedData: StoredDataTypes[ Version.V4 ] ): StoredDataTypes[ Version.V5 ]
+{
+  console.log( 'Migration V4 -> V5:', storedData );
+
+  return {
+    user: {
+      playlistSubscriptions: storedData.user.playlistSubscriptions,
+      hiddenPlaylistItems: storedData.user.hiddenPlaylistItems,
+      watchedVideos: new Set()
+    },
+    settings: {
+      useDarkTheme: storedData.settings.useDarkTheme,
+      markVideoWatchedOnOpen: false
     }
   };
 }
