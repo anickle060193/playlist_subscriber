@@ -131,7 +131,7 @@ class SettingsPage extends React.PureComponent<Props, State>
         <div className={classes.group}>
           <Typography variant="h5">Import User Data</Typography>
           <Divider />
-          <Typography>Import previously exported user data. Proceed cautiously.</Typography>
+          <Typography>Import previously exported user data.</Typography>
           <div>
             <input
               className={classes.importFileInput}
@@ -182,7 +182,7 @@ class SettingsPage extends React.PureComponent<Props, State>
           <MuiThemeProvider theme={useDarkTheme ? darkRedTheme : lightRedTheme}>
             <Typography variant="h5" color="secondary">Clear User Data</Typography>
             <Divider />
-            <Typography>Once you clear your user data, there is no recovering it.</Typography>
+            <Typography>Once you clear your user data, there is no recovering it. Proceed cautiously.</Typography>
             <div>
               <Button
                 onClick={this.onClearDataDialogOpen}
