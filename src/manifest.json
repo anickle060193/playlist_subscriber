@@ -15,7 +15,7 @@
     ]
   },
   "browser_action": {
-    "default_popup": "popup.html"
+    "default_popup": "./popup.html"
   },
   "background": {
     "persistent": false,
@@ -23,5 +23,6 @@
       "./background.bundle.js"
     ]
   },
+  "options_page": "./main.html#!/settings",
   "web_accessible_resources": []
 }
