@@ -35,6 +35,8 @@ import HomePage from 'main/components/HomePage';
 import SubscriptionsPage from 'main/components/SubscriptionsPage';
 import SettingsPage from 'main/components/SettingsPage';
 
+import { storage, StorageKey } from 'common/storage';
+
 import { retrieveYoutubeAuthToken } from 'store/reducers/youtubeApi';
 
 import { Resource } from 'utils/resource';
@@ -187,6 +189,8 @@ class Main extends React.PureComponent<Props, State>
 
   public async componentDidMount()
   {
+    storage.set( StorageKey.Other__LastViewTime, new Date().getTime() );
+
     // try
     // {
     //   let token = await this.props.retrieveYoutubeAuthToken( false );

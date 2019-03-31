@@ -6,6 +6,8 @@ export const enum StorageKey
   User_PlaylistSubscriptions = 'user__playlist_subscriptions',
   User_HiddenPlaylistItems = 'user__hidden_playlist_items',
   User_WatchedVideos = 'user__watched_videos',
+
+  Other__LastViewTime = 'other__last_view_time',
 }
 
 interface StorageType
@@ -16,6 +18,8 @@ interface StorageType
   [ StorageKey.User_PlaylistSubscriptions ]: string[];
   [ StorageKey.User_HiddenPlaylistItems ]: { [ playlistItemId: string ]: boolean | undefined };
   [ StorageKey.User_WatchedVideos ]: { [ videoId: string ]: boolean | undefined };
+
+  [ StorageKey.Other__LastViewTime ]: number;
 }
 
 const DEFAULT_STORAGE: StorageType = {
@@ -25,6 +29,8 @@ const DEFAULT_STORAGE: StorageType = {
   [ StorageKey.User_PlaylistSubscriptions ]: [],
   [ StorageKey.User_HiddenPlaylistItems ]: {},
   [ StorageKey.User_WatchedVideos ]: {},
+
+  [ StorageKey.Other__LastViewTime ]: 0,
 };
 
 class Storage
@@ -86,27 +92,35 @@ class Storage
     return this.initializingPromise;
   }
 
-  public addOnChangeListener( callback: () => void )
+  public addOnChangeListener( callback: ( changes: { [ key: string ]: chrome.storage.StorageChange; }, areaName: string ) => void )
   {
     chrome.storage.onChanged.addListener( callback );
   }
 
-  public removeOnChangeListener( callback: () => void )
+  public removeOnChangeListener( callback: ( changes: { [ key: string ]: chrome.storage.StorageChange; }, areaName: string ) => void )
   {
     chrome.storage.onChanged.removeListener( callback );
   }
 
   public get<K extends StorageKey>( key: K ): StorageType[ K ]
   {
-    if( typeof this.cache[ key ] !== typeof DEFAULT_STORAGE[ key ] )
+    return this.getFrom( this.cache, key );
+  }
+
+  public retrieve<K extends StorageKey>( key: K ): Promise<StorageType[ K ]>
+  {
+    return new Promise<StorageType[ K ]>( ( resolve, reject ) =>
     {
-      console.warn( 'Stored storage item type is invalid -', key, ':', this.cache[ key ] );
-      return DEFAULT_STORAGE[ key ];
-    }
-    else
-    {
-      return this.cache[ key ];
-    }
+      chrome.storage.sync.get( { [ key ]: DEFAULT_STORAGE[ key ] }, ( items ) =>
+      {
+        if( chrome.runtime.lastError )
+        {
+          return reject( chrome.runtime.lastError );
+        }
+
+        resolve( this.getFrom( items as StorageType, key ) );
+      } );
+    } );
   }
 
   public getDefault<K extends StorageKey>( key: K ): StorageType[ K ]
@@ -142,6 +156,21 @@ class Storage
         console.error( 'Failed to reset storage item:', chrome.runtime.lastError );
       }
     } );
+  }
+
+  private getFrom<K extends StorageKey>( store: StorageType, key: K ): StorageType[ K ]
+  {
+    const value = store[ key ];
+    const defaultValue = DEFAULT_STORAGE[ key ];
+    if( typeof value !== typeof defaultValue )
+    {
+      console.warn( 'Stored storage item type is invalid -', key, ':', value );
+      return defaultValue;
+    }
+    else
+    {
+      return value;
+    }
   }
 }
 
