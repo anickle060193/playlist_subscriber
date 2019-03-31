@@ -1,5 +1,6 @@
 import React = require( 'react' );
 import { connect } from 'react-redux';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 import classNames from 'classnames';
 import { Theme, createStyles, WithStyles, withStyles, Snackbar, Button, IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
@@ -139,7 +140,7 @@ class PlaylistItemsRow extends React.PureComponent<Props, State>
 export default connect<{}, PropsFromDispatch, OwnProps, RootState>(
   null,
   {
-    hidePlaylistItem,
-    unhidePlaylistItem
+    hidePlaylistItem: thunkToAction( hidePlaylistItem.action ),
+    unhidePlaylistItem: thunkToAction( unhidePlaylistItem.action ),
   }
 )( withStyles( styles )( PlaylistItemsRow ) );

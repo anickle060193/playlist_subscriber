@@ -1,55 +1,119 @@
 import actionCreatorFactory from 'typescript-fsa';
 import { reducerWithInitialState } from 'typescript-fsa-reducers';
-import { addItemToStateSet, removeItemFromStateSet } from 'utils';
+import { asyncFactory } from 'typescript-fsa-redux-thunk';
+
+import { storage, StorageKey } from 'common/storage';
 
 export interface State
 {
   playlistSubscriptions: string[];
-  hiddenPlaylistItems: Set<string>;
-  watchedVideos: Set<string>;
+  hiddenPlaylistItems: { [ playlistItemId: string ]: boolean | undefined };
+  watchedVideos: { [ videoId: string ]: boolean | undefined };
 }
 
 export const initialState: State = {
-  playlistSubscriptions: [],
-  hiddenPlaylistItems: new Set<string>(),
-  watchedVideos: new Set<string>()
+  playlistSubscriptions: storage.getDefault( StorageKey.User_PlaylistSubscriptions ),
+  hiddenPlaylistItems: storage.getDefault( StorageKey.User_HiddenPlaylistItems ),
+  watchedVideos: storage.getDefault( StorageKey.User_WatchedVideos ),
 };
 
 const createAction = actionCreatorFactory();
+const createAsyncAction = asyncFactory<RootState>( createAction );
 
-export const clearUserData = createAction( 'CLEAR_USER_DATA' );
-export const setUserData = createAction<State>( 'SET_USER_DATA' );
-export const setPlaylistSubscriptions = createAction<string[]>( 'SET_PLAYLIST_SUBSCRIPTIONS' );
-export const hidePlaylistItem = createAction<string>( 'HIDE_PLAYLIST_ITEM' );
-export const unhidePlaylistItem = createAction<string>( 'UNHIDE_PLAYLIST_ITEM' );
-export const markVideoAsWatched = createAction<string>( 'MARK_VIDEO_AS_WATCHED' );
-export const unmarkVideoAsWatched = createAction<string>( 'UNMARK_VIDEO_AS_WATCHED' );
+export const initializeUserData = createAsyncAction( 'INITIALIZE_USER_DATA', ( params: void, dispatch, getState ) =>
+{
+  storage.initialize( () =>
+  {
+    dispatch( updateUserData.action() );
+  } );
+} );
+
+export const updateUserData = createAsyncAction( 'UPDATE_USER_DATA', ( params: void, dispatch, getState ): State =>
+{
+  return {
+    playlistSubscriptions: storage.get( StorageKey.User_PlaylistSubscriptions ),
+    hiddenPlaylistItems: storage.get( StorageKey.User_HiddenPlaylistItems ),
+    watchedVideos: storage.get( StorageKey.User_WatchedVideos ),
+  };
+} );
+
+export const clearUserData = createAsyncAction( 'CLEAR_USER_DATA', ( params: void, dispatch, getState ) =>
+{
+  storage.reset( StorageKey.User_PlaylistSubscriptions );
+  storage.reset( StorageKey.User_HiddenPlaylistItems );
+  storage.reset( StorageKey.User_WatchedVideos );
+} );
+
+export const setUserData = createAsyncAction( 'SET_USER_DATA', ( params: State, dispatch, getState ) =>
+{
+  storage.set( StorageKey.User_PlaylistSubscriptions, params.playlistSubscriptions );
+  storage.set( StorageKey.User_HiddenPlaylistItems, params.hiddenPlaylistItems );
+  storage.set( StorageKey.User_WatchedVideos, params.watchedVideos );
+} );
+
+export const setPlaylistSubscriptions = createAsyncAction( 'SET_PLAYLIST_SUBSCRIPTIONS', ( playlistSubscriptions: string[], dispatch, getState ) =>
+{
+  storage.set( StorageKey.User_PlaylistSubscriptions, playlistSubscriptions );
+} );
+
+export const hidePlaylistItem = createAsyncAction( 'HIDE_PLAYLIST_ITEM', ( playlistItemId: string, dispatch, getState ) =>
+{
+  let hiddenPlaylistItems: State[ 'hiddenPlaylistItems' ] = {
+    ...storage.get( StorageKey.User_HiddenPlaylistItems ),
+    [ playlistItemId ]: true,
+  };
+  storage.set( StorageKey.User_HiddenPlaylistItems, hiddenPlaylistItems );
+  return hiddenPlaylistItems;
+} );
+export const unhidePlaylistItem = createAsyncAction( 'UNHIDE_PLAYLIST_ITEM', ( playlistItemId: string, dispatch, getState ) =>
+{
+  let hiddenPlaylistItems: State[ 'hiddenPlaylistItems' ] = {
+    ...storage.get( StorageKey.User_HiddenPlaylistItems ),
+    [ playlistItemId ]: false,
+  };
+  storage.set( StorageKey.User_HiddenPlaylistItems, hiddenPlaylistItems );
+  return hiddenPlaylistItems;
+} );
+export const markVideoAsWatched = createAsyncAction( 'MARK_VIDEO_AS_WATCHED', ( videoId: string, dispatch, getState ) =>
+{
+  let watchedVideos: State[ 'watchedVideos' ] = {
+    ...storage.get( StorageKey.User_WatchedVideos ),
+    [ videoId ]: true,
+  };
+  storage.set( StorageKey.User_WatchedVideos, watchedVideos );
+  return watchedVideos;
+} );
+export const unmarkVideoAsWatched = createAsyncAction( 'UNMARK_VIDEO_AS_WATCHED', ( videoId: string, dispatch, getState ) =>
+{
+  let watchedVideos: State[ 'watchedVideos' ] = {
+    ...storage.get( StorageKey.User_WatchedVideos ),
+    [ videoId ]: false,
+  };
+  storage.set( StorageKey.User_WatchedVideos, watchedVideos );
+  return watchedVideos;
+} );
 
 export const reducer = reducerWithInitialState( initialState )
-  .case( clearUserData, ( state ) => ( {
+  .case( updateUserData.async.done, ( state, { result } ) => ( {
+    ...state,
+    ...result,
+  } ) )
+  .case( clearUserData.async.done, ( state ) => ( {
     ...initialState
   } ) )
-  .case( setUserData, ( state, userData ) => ( {
+  .case( setUserData.async.done, ( state, { params: userData } ) => ( {
     ...state,
     ...userData
   } ) )
-  .case( setPlaylistSubscriptions, ( state, subscriptions ) => ( {
+  .case( setPlaylistSubscriptions.async.done, ( state, { params: subscriptions } ) => ( {
     ...state,
     playlistSubscriptions: subscriptions
   } ) )
-  .case( hidePlaylistItem, ( state, playlistItemId ) => ( {
+  .cases( [ hidePlaylistItem.async.done, unhidePlaylistItem.async.done ], ( state, { result: hiddenPlaylistItems } ) => ( {
     ...state,
-    hiddenPlaylistItems: addItemToStateSet( state.hiddenPlaylistItems, playlistItemId )
+    hiddenPlaylistItems: hiddenPlaylistItems,
   } ) )
-  .case( unhidePlaylistItem, ( state, playlistItemId ) => ( {
+  .cases( [ markVideoAsWatched.async.done, unmarkVideoAsWatched.async.done ], ( state, { result: watchedVideos } ) => ( {
     ...state,
-    hiddenPlaylistItems: removeItemFromStateSet( state.hiddenPlaylistItems, playlistItemId )
-  } ) )
-  .case( markVideoAsWatched, ( state, videoId ) => ( {
-    ...state,
-    watchedVideos: addItemToStateSet( state.watchedVideos, videoId )
-  } ) )
-  .case( unmarkVideoAsWatched, ( state, videoId ) => ( {
-    ...state,
-    watchedVideos: removeItemFromStateSet( state.watchedVideos, videoId )
+    watchedVideos: watchedVideos,
   } ) );

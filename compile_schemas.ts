@@ -3,8 +3,6 @@ import fs = require( 'fs' );
 import child_process = require( 'child_process' );
 
 const USED_SCHEMAS = [
-  'exported_stored_data',
-  'playlist_subscriptions',
   'youtube_paginated_response',
   'youtube_playlist',
   'youtube_playlist_item',
@@ -39,7 +37,6 @@ for( let schema of USED_SCHEMAS )
     '-s', `"${schemaFilename}"`,
     '-r', './schemas/*.json',
     '-o', `"${validatorFilename}"`,
-    '-c', '"./schemas/ajv/keywords.js"',
     '--all-errors', '--verbose',
   ];
   const { stdout, stderr, error } = child_process.spawnSync( command.join( ' ' ), { shell: true, encoding: 'utf8' } );

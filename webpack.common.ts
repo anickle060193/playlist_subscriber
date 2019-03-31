@@ -29,7 +29,12 @@ const config: webpack.Configuration = {
       },
       {
         test: /\.(ts|tsx)$/,
-        use: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            onlyCompileBundledFiles: true,
+          },
+        },
         exclude: /node_modules/
       },
       {

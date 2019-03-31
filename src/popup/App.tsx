@@ -1,13 +1,13 @@
 import React = require( 'react' );
 import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 import { CssBaseline } from '@material-ui/core';
 
 import ThemeProvider from 'common/components/ThemeProvider';
+import StoreInitializer from 'common/components/StoreInitializer';
 
 import BrowserActionPopup from 'popup/components/BrowserActionPopup';
 
-import { store, persistor } from 'store';
+import { store } from 'store';
 
 export default class App extends React.PureComponent
 {
@@ -17,9 +17,9 @@ export default class App extends React.PureComponent
       <Provider store={store}>
         <ThemeProvider>
           <CssBaseline />
-          <PersistGate persistor={persistor}>
+          <StoreInitializer>
             <BrowserActionPopup />
-          </PersistGate>
+          </StoreInitializer>
         </ThemeProvider>
       </Provider>
     );

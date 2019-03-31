@@ -1,14 +1,14 @@
 import React = require( 'react' );
 import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
 import { HashRouter } from 'react-router-dom';
 import { CssBaseline } from '@material-ui/core';
 
 import ThemeProvider from 'common/components/ThemeProvider';
+import StoreInitializer from 'common/components/StoreInitializer';
 
 import Main from 'main/components/Main';
 
-import { store, persistor } from 'store';
+import { store } from 'store';
 
 export default class App extends React.PureComponent
 {
@@ -18,11 +18,11 @@ export default class App extends React.PureComponent
       <Provider store={store}>
         <ThemeProvider>
           <CssBaseline />
-          <PersistGate loading={null} persistor={persistor}>
+          <StoreInitializer>
             <HashRouter hashType="hashbang">
               <Main />
             </HashRouter>
-          </PersistGate>
+          </StoreInitializer>
         </ThemeProvider>
       </Provider>
     );

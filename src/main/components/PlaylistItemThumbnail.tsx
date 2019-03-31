@@ -12,6 +12,7 @@ import SimpleMenu from 'common/components/SimpleMenu';
 import { markVideoAsWatched, unmarkVideoAsWatched } from 'store/reducers/stored/user';
 
 import { YoutubePlaylistItem, getYoutubePlaylistItemThumbnail } from 'utils/youtube_api_types';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 
 const THUMBNAIL_WIDTH = 230;
 const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * ( 9 / 16 );
@@ -319,11 +320,11 @@ class PlaylistItemThumbnail extends React.PureComponent<Props, State>
 
 export default connect<PropsFromState, PropsFromDispatch, OwnProps, RootState>(
   ( state, { playlistItem } ) => ( {
-    watched: !!playlistItem && state.stored.user.watchedVideos.has( playlistItem.contentDetails.videoId ),
+    watched: !!playlistItem && !!state.stored.user.watchedVideos[ playlistItem.contentDetails.videoId ],
     markVideoWatchedOnOpen: state.stored.settings.markVideoWatchedOnOpen,
   } ),
   {
-    markVideoAsWatched,
-    unmarkVideoAsWatched,
+    markVideoAsWatched: thunkToAction( markVideoAsWatched.action ),
+    unmarkVideoAsWatched: thunkToAction( unmarkVideoAsWatched.action ),
   }
 )( withStyles( styles )( PlaylistItemThumbnail ) );

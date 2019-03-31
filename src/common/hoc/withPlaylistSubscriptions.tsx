@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 
 import { setPlaylistSubscriptions } from 'store/reducers/stored/user';
+import { thunkToAction } from 'typescript-fsa-redux-thunk';
 
 interface PropsFromState
 {
@@ -32,7 +33,7 @@ export default function withPlaylistSubscriptions<P = {}>( WrappedComponent: Rea
       playlistSubscriptions: state.stored.user.playlistSubscriptions
     } ),
     {
-      setPlaylistSubscriptions
+      setPlaylistSubscriptions: thunkToAction( setPlaylistSubscriptions.action ),
     }
     // @ts-ignore
   )( WithPlaylistsComponent );
